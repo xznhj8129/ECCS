@@ -4,23 +4,25 @@ ECCS is a simple python-based encryption/decryption system made to easily be abl
 messages to send over whatever method is necessary. The system is made to be able to be used both manually using printed 
 documents (except the AES crypter which requires some form of computer) as well as electronically.
 
-1. GENERATE CODE BOOKS
-    usage: gencodes.py [-h] [--all] [--pdf] [--txt] [--pickle] [--otp] [--auth]
-                       [--aes]
+ALWAYS use an airgapped, secure and encrypted computer to generate, store and interact with code books and keys.
 
-    optional arguments:
-      -h, --help  show this help message and exit
-      --all       Generate all codes in all formats
-      --pdf       Generate pdf documents
-      --txt       Generate text files
-      --pickle    Generate pickle files
-      --otp       Generate OTP pads
-      --auth      Generate Authentification table
-      --aes       Generate AES code pads
+1. GENERATE CODE BOOKS
+    usage: gencodes.py [-h] [--all] [--pdf] [--txt] [--pickle] [--otp] [--auth] [--aes]
+    -h, --help    show this help message and exit
+    --all         Generate everything
+    --allformats  Generate all formats
+    --pdf         Generate pdf documents
+    --txt         Generate text files
+    --pickle      Generate pickle files
+    --allcodes    Generate all codes
+    --otp         Generate OTP pads
+    --auth        Generate Authentification table
+    --aes         Generate AES code pads
 
 
 2. DISTRIBUTION OF CODE BOOKS
     Pad ID: The Pad ID is a safe code number you can share to make sure you are all using the propper code books.
+
 
 3. AUTHENTIFICATION TABLE
     The authentification table is a very simple way to verify if the message is coming from someone in possession of 
@@ -29,77 +31,72 @@ documents (except the AES crypter which requires some form of computer) as well 
     are who you say you are. You can also issue a challenge and demand verification, asking "Authenticate H19" and 
     expecting "DJ9W". Using the authentification table in your messages is an extra layer of security.
 
+
 4. AES CRYPTER
 
-    usage: aescrypt.py [-h] [-e] [-d] [--key KEY] [--iv IV] [--b64] [--rawkey]
-                       [--file]
-                       message
+    usage: aescrypt.py [-h] [-e] [-d] [--key KEY] [--iv IV] [--b64] [--rawkey] [--file] message
 
-    positional arguments:
-      message     Message or filename
+    message     Message or filename
+    -h, --help  show this help message and exit
+    -e          Encrypt
+    -d          Decrypt
+    --key1 KEY1   1/2 Encryption key (32 characters)
+    --key2 KEY2   1/2 Encryption key (32 characters)
+    --iv IV     Initiation vector (16 characters)
+    --b64       Base64 encoding of input/output
+    --rawkey    No base64 for keys and IV
+    --file      Encrypt/decrypt file, .enc extension
+    --keyfile KEYFILE  Use pickle key file
+    --keeppad   Do not trim used keys from keyfile (for testing only, reuse of keys make them easily broken)
 
-    optional arguments:
-      -h, --help  show this help message and exit
-      -e          Encrypt
-      -d          Decrypt
-      --key1 KEY1   1/2 Encryption key (32 characters)
-      --key2 KEY2   1/2 Encryption key (32 characters)
-      --iv IV     Initiation vector (16 characters)
-      --b64       Base64 encoding of input/output
-      --rawkey    No base64 for keys and IV
-      --file      Encrypt/decrypt file, .enc extension
-      --keyfile KEYFILE  Use pickle key file
-      --keeppad   Do not trim used keys from keyfile (for testing only, reuse of keys make them easily broken)
-
-
-    The code blocks are 16 random bytes base64 encoded. Two blocks are required for a key and one for an IV, requiring 
+    The code blocks are 16 random bytes base64 encoded. Two blocks are required for keys and one for an IV, requiring 
     three blocks per message. This means 300 blocks are enough for 100 messages.
 
     ENCRYPTION
-    1. Select first half and last half of Key on code pad then redact them out to prevent re-use
-        Example: 
-        A6: 9bba6c2d46e354e1f3f3238542795266	
-        B13: c424d45b1a68685353499e45a2ebec72
+        1. Select first half and last half of Key on code pad then redact them out to prevent re-use
+            Example: 
+            A6: 9bba6c2d46e354e1f3f3238542795266	
+            B13: c424d45b1a68685353499e45a2ebec72
 
-    2. Select Initialization Vector on code pad then redact it out to prevent re-use
-        Example: 
-        B20: 7e3119074bc945d5080e339308f34cf9
+        2. Select Initialization Vector on code pad then redact it out to prevent re-use
+            Example: 
+            B20: 7e3119074bc945d5080e339308f34cf9
 
-    3. Construct message header:
-        Pad ID: 940276
-        Keys: A6 and B13
-        IV: B20
-        940276-A6B13-B20-
+        3. Construct message header:
+            Pad ID: 940276
+            Keys: A6 and B13
+            IV: B20
+            940276-A6B13-B20-
 
-    4. Encrypt message with aescrypt.py
+        4. Encrypt message with aescrypt.py
 
-        ./aescrypt.py -e --key1 9bba6c2d46e354e1f3f3238542795266 --key2 c424d45b1a68685353499e45a2ebec72 --iv 7e3119074bc945d5080e339308f34cf9 "test message" --b64
-        out: a72ef25dc9af3ddcf3d75cac71e7777f
+            ./aescrypt.py -e --key1 9bba6c2d46e354e1f3f3238542795266 --key2 c424d45b1a68685353499e45a2ebec72 --iv 7e3119074bc945d5080e339308f34cf9 "test message" --b64
+            out: a72ef25dc9af3ddcf3d75cac71e7777f
 
-        Alternatively, use the pickle file mode
-        ./aescrypt.py -e --key1 A6 --key2 B13 --iv B20 --keyfile aespad.pickle "test message" --b64
+            Alternatively, use the pickle file mode
+            ./aescrypt.py -e --key1 A6 --key2 B13 --iv B20 --keyfile aespad.pickle "test message" --b64
 
-    5. Complete message by adding [message] to header
-        Example: 940276-A6B13-B20-a72ef25dc9af3ddcf3d75cac71e7777f
+        5. Complete message by adding [message] to header
+            Example: 940276-A6B13-B20-a72ef25dc9af3ddcf3d75cac71e7777f
 
-    6. Send message
+        6. Send message
 
     DECRYPTION
 
-    7. Receive message and find keys on Code Pad
-        Example: 940276-A6B13-B20-a72ef25dc9af3ddcf3d75cac71e7777f
-        First key half: A6: 9bba6c2d46e354e1f3f3238542795266
-        Second key half: B13: c424d45b1a68685353499e45a2ebec72
-        IV: B20: 7e3119074bc945d5080e339308f34cf9
+        7. Receive message and find keys on Code Pad
+            Example: 940276-A6B13-B20-a72ef25dc9af3ddcf3d75cac71e7777f
+            First key half: A6: 9bba6c2d46e354e1f3f3238542795266
+            Second key half: B13: c424d45b1a68685353499e45a2ebec72
+            IV: B20: 7e3119074bc945d5080e339308f34cf9
 
-        Redact Keys and IV from code pad to prevent re-use
-        
-    8. Decrypt message with aescrypt.py
-        ./aescrypt.py decrypt --key1 9bba6c2d46e354e1f3f3238542795266 --key2 c424d45b1a68685353499e45a2ebec72 --iv 7e3119074bc945d5080e339308f34cf9 --b64 a72ef25dc9af3ddcf3d75cac71e7777f
-        out: test message
+            Redact Keys and IV from code pad to prevent re-use
+            
+        8. Decrypt message with aescrypt.py
+            ./aescrypt.py -d --key1 9bba6c2d46e354e1f3f3238542795266 --key2 c424d45b1a68685353499e45a2ebec72 --iv 7e3119074bc945d5080e339308f34cf9 --b64 a72ef25dc9af3ddcf3d75cac71e7777f
+            out: test message
 
-        Alternatively, use the pickle file
-        ./aescrypt.py -d --key1 A6 --key2 B13 --iv B20 --keyfile aespad.pickle --b64 a72ef25dc9af3ddcf3d75cac71e7777f
+            Alternatively, use the pickle file
+            ./aescrypt.py -d --key1 A6 --key2 B13 --iv B20 --keyfile aespad.pickle --b64 a72ef25dc9af3ddcf3d75cac71e7777f
 
     SAFE DESTRUCTION OF CODE PAD
         Shred then burn paper code pads, or securely wipe code pad file
@@ -108,21 +105,19 @@ documents (except the AES crypter which requires some form of computer) as well 
         ./aescrypt.py -e --key1 [key1] --key2 [key2] --iv [iv] --file myfile.tar.gz
         ./aescrypt.py -d --key1 [key1] --key2 [key2] --iv [iv] --file myfile.tar.gz.enc
 
+
 5. ONE TIME PAD SCRIPT
 
     The OTP script uses the same OTP technique as the manual one. It uses pickle files to get the OTP and removes them once they are used. 
 
     usage: otp.py [-h] [--pad PAD] [-e] [-d] [--keeppad] message
 
-    positional arguments:
-      message     Message
-
-    optional arguments:
-      -h, --help  show this help message and exit
-      --pad PAD   One time pad pickle file to use
-      -e          Encrypt message
-      -d          Decrypt message
-      --keeppad   Do not trim used OTP pickle file (for testing only, reuse of OTPs make them easily broken)
+    message     Message
+    -h, --help  show this help message and exit
+    --pad PAD   One time pad pickle file to use
+    -e          Encrypt message
+    -d          Decrypt message
+    --keeppad   Do not trim used OTP pickle file (for testing only, reuse of OTPs make them easily broken)
 
     ENCRYPT:
         ./otp.py -e --pad 2021-06-23_600815_otp.pickle 'auth D2-VVJS. this is a test message of the OTP system'
@@ -131,89 +126,93 @@ documents (except the AES crypter which requires some form of computer) as well 
         output: 00001426428271331445461698759145020463212241105468681420662183079726717517225461032501137082524084622491649676
 
     DECRYPT:
-        ./otp.py -d --pad 2021-06-23_600815_otp.pickle 0000142642827...
+        ./otp.py -d --pad 2021-06-23_600815_otp.pickle 00001426428271331445461698759145020463212241105468681420662183079726717517225461032501137082524084622491649676
         message no: 00001
         pad id: 42642
         Decryption successful
         output: auth d2-vvjs. this is a test message of the otp system..
 
 
-6. MANUAL ONE TIME PAD USE
-
-    HOW TO USE A ONE TIME PAD
+6. HOW TO USE A PAPER ONE TIME PAD
+    
+    For more information visit: http://users.telenet.be/d.rijmenants/en/onetimepad.htm
     The one time pad is absolutely unbreakable if used proprely.
+    - NEVER re-use the same key to encrypt a different message
+    - ALWAYS use a secure truly random number generator
+    - ALWAYS keep the key in a secure location
+    - ALWAYS destroy the code pad after it has been used
 
     1. Randomly generate a few hundred numbers in groups of 5 in a cryptographically secure way
-    2. 
 
-    -----------------------------------------------------
-    |  A    E    I    N    O    R    |      CT-46b      |
-    |  1    2    3    4    5    6    |                  |
-    |---------------------------------------------------|
-    |  B    C    D    F    G    H    J    K    L    M   |
-    |  70   71   72   73   74   75   76   77   78   79  |
-    |---------------------------------------------------|
-    |  P    Q    S    T    U    V    W    X    Y    Z   |
-    |  80   81   82   83   84   85   86   87   88   89  |
-    |---------------------------------------------------|
-    |  SPC  .    ,    :    ?    /    (    )    "    -   |
-    |  90   91   92   93   94   95   96   97   98   99  |
-    |---------------------------------------------------|
-    |  0    1    2    3    4    5    6    7    8    9   |
-    |  00   01   02   03   04   05   06   07   08   09  |
-    -----------------------------------------------------
+        Example code pad
+        63649 53102 36804 76914 10616 
+        07911 65904 45066 89919 09794 
+        42742 01969 89083 84195 92015 
+        21854 72871 04531 20030 40734 
+        67903 03061 56195 46228 98092 
+        85047 07218 82884 73722 72631 
+        75966 33824 85150 03150 33620 
+        44677 62569 71723 30910 16106 
+        08610 20247 94182 82128 47647 
+        75675 73688 62476 30843 25272 
+        02670 04743 47842 81324 10668 
+        90190 41737 75490 72069 41769 
+        51603 35220 99127 26616 45828 
+        42953 29712 85571 37285 47970 
+        35429 01619 85392 58782 58024 
+        33036 60833 01560 76262 47290 
+        83378 75598 06011 83127 13463 
+        39528 72464 33378 53154 73846 
+        43909 26603 61600 20250 81003 
+        83312 09378 75190 89645 36395 
 
-    In this version, CODE was replaced with -
+    2. Convert your message according to this or any other table, these are known as "Straddling Checkerboards"
+
+        -----------------------------------------------------
+        |  A    E    I    N    O    R    |      CT-46b      |
+        |  1    2    3    4    5    6    |                  |
+        |---------------------------------------------------|
+        |  B    C    D    F    G    H    J    K    L    M   |
+        |  70   71   72   73   74   75   76   77   78   79  |
+        |---------------------------------------------------|
+        |  P    Q    S    T    U    V    W    X    Y    Z   |
+        |  80   81   82   83   84   85   86   87   88   89  |
+        |---------------------------------------------------|
+        |  SPC  .    ,    :    ?    /    (    )    "    -   |
+        |  90   91   92   93   94   95   96   97   98   99  |
+        |---------------------------------------------------|
+        |  0    1    2    3    4    5    6    7    8    9   |
+        |  00   01   02   03   04   05   06   07   08   09  |
+        -----------------------------------------------------
+
+        In this version, CODE was replaced with -
+
+        MESSAGE:	ALL YOUR BASE ARE BELONG TO US.
+        ENCODED:	11787 89088 58469 07018 22901 62907 02785 47490 83584 8291
+        
+    3. Encrypt the message by adding without carrying (modulo 10), ex: 9 + 5 = 4, 4 - 9 = 5, using the code pad. Skip the first 5-char block.
+
+        MESSAGE:	ALL YOUR BASE ARE BELONG TO US.
+        ENCODED:	11787 89088 58469 07018 22901 62907 02785 47490 83584 8291 +
+        CODEPAD:	53102 36804 76914 10616 07911 65904 45066 89919 09794 4274
+			        -----------------------------------------------------------
+        ENCRYPTED:	64889 15882 24373 17624 29812 27801 47741 26309 82278 2465
     
-    Add/subtract whitout carrying (modulo 10), ex: 9 + 5 = 4, 4 - 9 = 5
-
-    CODE PAD
-    63649 53102 36804 76914 10616 
-    07911 65904 45066 89919 09794 
-    42742 01969 89083 84195 92015 
-    21854 72871 04531 20030 40734 
-    67903 03061 56195 46228 98092 
-    85047 07218 82884 73722 72631 
-    75966 33824 85150 03150 33620 
-    44677 62569 71723 30910 16106 
-    08610 20247 94182 82128 47647 
-    75675 73688 62476 30843 25272 
-    02670 04743 47842 81324 10668 
-    90190 41737 75490 72069 41769 
-    51603 35220 99127 26616 45828 
-    42953 29712 85571 37285 47970 
-    35429 01619 85392 58782 58024 
-    33036 60833 01560 76262 47290 
-    83378 75598 06011 83127 13463 
-    39528 72464 33378 53154 73846 
-    43909 26603 61600 20250 81003 
-    83312 09378 75190 89645 36395 
-
-    Alice sends a message using the CT46b pad:
-    MESSAGE:	ALL YOUR BASE ARE BELONG TO US.
-    ENCODED:	11787 89088 58469 07018 22901 62907 02785 47490 83584 8291 +
-    CODEPAD:	53102 36804 76914 10616 07911 65904 45066 89919 09794 4274
-			    -----------------------------------------------------------
-    ENCRYPTED:	64889 15882 24373 17624 29812 27801 47741 26309 82278 2465
+        
+    4. Add the header
+        Since this is the first message, prefix it with 00001 (5 characters).
+        After the message number, add the first block of your code pad (63649). This is to verify the right code pad.
+        So the message becomes:
+        00001636495097014388586159382429613334418154062828
     
-    Since this is the first message Alice is sending, prefix it with 00001 (5 characters).
-    After the message number, Alice adds the first block of your code pad (63649). This is to verify the right code pad.
-    So her message becomes:
-    00001636495097014388586159382429613334418154062828
-    Alice sends the message through whatever means
+    5. Send the message through whatever means
 
-    Bob receives the message and goes to pad 00001 and verifies that it begins with 63649.
-    He then decrypts the message by subtracting.
+    6. Bob receives the message and goes to pad 00001 and verifies that it begins with 63649.
+    He then decrypts the message by subtracting without carrying and converts the result back into characters.
 
     ENCRYPTED:	64889 15882 24373 17624 29812 27801 47741 26309 82278 2465 -
     CODEPAD:	53102 36804 76914 10616 07911 65904 45066 89919 09794 4274
 			    -----------------------------------------------
     DECRYPTED:	11787 89088 58469 07018 22901 27801 47741 26309 82278 2465
     MESSAGE:	ALL YOUR BASE ARE BELONG TO US.
-
-
-
-	    
-
-
 

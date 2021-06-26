@@ -132,12 +132,12 @@ def gen_otp(padlen,date,padid):
 
     print 'Generated OTP Length: {} numbers'.format(len(otp))
 
-    if args.pdf or args.all:
+    if args.pdf or args.all or args.allformats:
         pdf.output("{}_{}_otp.pdf".format(date,padid))
-    if args.txt or args.all:
+    if args.txt or args.all or args.allformats:
         with open('{}_{}_otp.txt'.format(date,padid), "w") as file:
             file.write(txt)
-    if args.pickle or args.all:
+    if args.pickle or args.all or args.allformats:
         with open('{}_{}_otp.pickle'.format(date,padid), 'wb') as f:
             pickle.dump(pickledict, f, pickle.HIGHEST_PROTOCOL)
     #with open('{}_{}_otp.otp'.format(date,padid), "w") as file:
@@ -188,18 +188,18 @@ def gen_aes(date,padid):
         txt+= str(i+1)+'\t\t'+a+'\t'+b+'\n'
 
 
-    if args.pdf or args.all:
+    if args.pdf or args.all or args.allformats:
         pdf.output("{}_{}_aespad.pdf".format(date,padid))
-    if args.pickle or args.all:
+    if args.pickle or args.all or args.allformats:
         with open('{}_{}_aespad.pickle'.format(date,padid), 'wb') as f:
             pickle.dump(keyfile, f, pickle.HIGHEST_PROTOCOL)
-    if args.txt or args.all:
+    if args.txt or args.all or args.allformats:
         with open('{}_{}_aespad.txt'.format(date,padid), "a+") as file:
             file.write(txt)
 
 def gen_auth(date,padid):
     global args
-    grid_w = 10
+    grid_w = 9
     grid_v = 48
 
     date=datetime.datetime.utcnow().strftime("%Y-%m-%d")
@@ -225,11 +225,10 @@ def gen_auth(date,padid):
         codes.append(randcode())
 
     pdf.set_font("Courier", size=11)
-    pdf.cell(0, 10, txt='      A       B       C       D       E       F       G       H       I       J', ln=1, align="L")
-    pdf.cell(0, 10, txt='', ln=1, align="C")
+    pdf.cell(0, 10, txt='      A       B       C       D       E       F       G       H       J', ln=1, align="L")
     txt += '\tA\t\tB\t\tC\t\tD\t\tE\t\tF\t\tG\t\tH\t\tI\t\tJ\n'
     pickledict = {}
-    ind = {0:'A',1:'B',2:'C',3:'D',4:'E',5:'F',6:'G',7:'H',8:'I',9:'J'}
+    ind = {0:'A',1:'B',2:'C',3:'D',4:'E',5:'F',6:'G',7:'H',8:'J'}
     for i in range(0,grid_v):
         if i < 9:
             si = '0'+str(i+1)
@@ -252,43 +251,45 @@ def gen_auth(date,padid):
         pdf.cell(0, 4, txt=si+'    '+x, ln=1, align="L")
         txt+='\n'
     
-    if args.pdf or args.all:
+    if args.pdf or args.all or args.allformats:
         pdf.output("{}_{}_auth.pdf".format(date,padid))
-    if args.pickle or args.all:
+    if args.pickle or args.all or args.allformats:
         with open('{}_{}_auth.pickle'.format(date,padid), 'wb') as f:
             pickle.dump(pickledict, f, pickle.HIGHEST_PROTOCOL)
-    if args.txt or args.all:
+    if args.txt or args.all or args.allformats:
         with open('{}_{}_auth.txt'.format(date,padid), "w") as file:
             file.write(txt)
 
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('--all', help='Generate all formats',action="store_true")
+    parser.add_argument('--all', help='Generate everything',action="store_true")
+    parser.add_argument('--allformats', help='Generate all formats',action="store_true")
     parser.add_argument('--pdf', help='Generate pdf documents',action="store_true")
     parser.add_argument('--txt',help='Generate text files',action="store_true")
     parser.add_argument('--pickle', help='Generate pickle files',action="store_true")
+    parser.add_argument('--allcodes', help='Generate all codes',action="store_true")
     parser.add_argument('--otp', help='Generate OTP pads',required=False,action="store_true")
     parser.add_argument('--auth', help='Generate Authentification table',required=False,action="store_true")
     parser.add_argument('--aes', help='Generate AES code pads',required=False,action="store_true")
     args = parser.parse_args()
     
-    if not (args.aes or args.otp or args.auth or args.all):
+    if not (args.aes or args.otp or args.auth or args.all or args.allcodes):
         raise argparse.ArgumentTypeError('Error: pick one type of code book') 
-    if not (args.pdf or args.txt or args.pickle or args.all):
+    if not (args.pdf or args.txt or args.pickle or args.all or args.allformats):
         raise argparse.ArgumentTypeError('Error: pick one format') 
 
     date = datetime.datetime.utcnow().strftime("%Y-%m-%d")
     padid = ''.join(random.choice('1234567890') for _ in range(6))
     padlen = 100
 
-    if args.aes or args.all:
+    if args.aes or args.all or args.allcodes:
         gen_aes(date,padid)
         print 'AES codes generated'
-    if args.auth or args.all:
+    if args.auth or args.all or args.allcodes:
         gen_auth(date,padid)
         print 'Authentifier generated'
-    if args.otp or args.all:
+    if args.otp or args.all or args.allcodes:
         gen_otp(padlen,date,padid)
         print 'One Time Pad generated'
     print 'Crypto pads {} {} generated'.format(padid,date)

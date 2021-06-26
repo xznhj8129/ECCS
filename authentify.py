@@ -16,11 +16,11 @@ if __name__ == '__main__':
         padbook = pickle.load(f)
         
     if len(args.code)==3:
-        print padbook[args.code]
+        print padbook[args.code.upper()]
         
     elif len(args.code)==4:
         if args.code in padbook.values():
-            print padbook.keys()[padbook.values().index(args.code)]
+            print padbook.keys()[padbook.values().index(args.code).upper()]
         else:
             print 'Code not found'
         
