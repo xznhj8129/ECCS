@@ -6,6 +6,7 @@ documents (except the AES crypter which requires some form of computer) as well 
 
 ALWAYS use an airgapped, secure and encrypted computer to generate, store and interact with code books and keys.
 
+
 1. GENERATE CODE BOOKS
     usage: gencodes.py [-h] [--all] [--pdf] [--txt] [--pickle] [--otp] [--auth] [--aes]
     -h, --help    show this help message and exit

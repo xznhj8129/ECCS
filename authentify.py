@@ -20,7 +20,7 @@ if __name__ == '__main__':
         
     elif len(args.code)==4:
         if args.code in padbook.values():
-            print padbook.keys()[padbook.values().index(args.code).upper()]
+            print padbook.keys()[padbook.values().index(args.code.upper())]
         else:
             print 'Code not found'
         

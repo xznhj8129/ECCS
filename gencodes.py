@@ -175,7 +175,7 @@ def gen_aes(date,padid):
     pdf.cell(0, 5, txt='\t       A                               B', ln=1, align="C")
     pdf.cell(0, 5, txt='', ln=1, align="C")
     pdf.set_font("Courier", size=11)
-    txt+='\t\t\t\t\t\tA\t\t\t\t\t\t\t\tB\n'
+    txt+='\t\t\t\t\t\tA\t\t\t\t\t\t\t\tB\n\n'
     keyfile = {}
     for i in range(linesn):
         si = str(i+1)
@@ -226,7 +226,7 @@ def gen_auth(date,padid):
 
     pdf.set_font("Courier", size=11)
     pdf.cell(0, 10, txt='      A       B       C       D       E       F       G       H       J', ln=1, align="L")
-    txt += '\tA\t\tB\t\tC\t\tD\t\tE\t\tF\t\tG\t\tH\t\tI\t\tJ\n'
+    txt += '\tA\t\tB\t\tC\t\tD\t\tE\t\tF\t\tG\t\tH\t\tJ\n'
     pickledict = {}
     ind = {0:'A',1:'B',2:'C',3:'D',4:'E',5:'F',6:'G',7:'H',8:'J'}
     for i in range(0,grid_v):
