@@ -118,9 +118,11 @@ def gen_otp(padlen,date,padid):
             nnn += 1
             if nnn ==2:
                 pdf.add_page()
+                #pdf.Rect(0, 0, 210, 100, 'D')
                 nn = 0
             elif nn == 3:
                 pdf.add_page()
+                #pdf.Rect(0, 0, 210, 100, 'D')
                 nn = 0
             
             txt += '\n\n'+spacer+'\n\n\t\t\t\t\t\t    '+nos+'\n\n'
@@ -131,17 +133,21 @@ def gen_otp(padlen,date,padid):
             pdf.cell(0, 4, txt='', ln=1, align="C")
 
     print 'Generated OTP Length: {} numbers'.format(len(otp))
+    pdf.add_page()
+    pdf.image('CT46.png',w=190,y=100)
+    #pdf.cell(0, 4, txt='', ln=1, align="C")
+    pdf.add_page()
+    pdf.image('CT46-2.png',w=190,y=100)
 
     if args.pdf or args.all or args.allformats:
-        pdf.output("{}_{}_otp.pdf".format(date,padid))
+        pdf.output("codebooks{}{}_{}_otp.pdf".format(os.sep,date,padid))
     if args.txt or args.all or args.allformats:
-        with open('{}_{}_otp.txt'.format(date,padid), "w") as file:
+        with open('codebooks{}{}_{}_otp.txt'.format(os.sep,date,padid), "w") as file:
             file.write(txt)
     if args.pickle or args.all or args.allformats:
-        with open('{}_{}_otp.pickle'.format(date,padid), 'wb') as f:
+        with open('codebooks{}{}_{}_otp.pickle'.format(os.sep,date,padid), 'wb') as f:
             pickle.dump(pickledict, f, pickle.HIGHEST_PROTOCOL)
-    #with open('{}_{}_otp.otp'.format(date,padid), "w") as file:
-    #    file.write(raw)
+
 
 def gen_aes(date,padid):
     txt=''
@@ -189,13 +195,14 @@ def gen_aes(date,padid):
 
 
     if args.pdf or args.all or args.allformats:
-        pdf.output("{}_{}_aespad.pdf".format(date,padid))
+        pdf.output("codebooks{}{}_{}_aespad.pdf".format(os.sep,date,padid))
     if args.pickle or args.all or args.allformats:
-        with open('{}_{}_aespad.pickle'.format(date,padid), 'wb') as f:
+        with open('codebooks{}{}_{}_aespad.pickle'.format(os.sep,date,padid), 'wb') as f:
             pickle.dump(keyfile, f, pickle.HIGHEST_PROTOCOL)
     if args.txt or args.all or args.allformats:
-        with open('{}_{}_aespad.txt'.format(date,padid), "a+") as file:
+        with open('codebooks{}{}_{}_aespad.txt'.format(os.sep,date,padid), "a+") as file:
             file.write(txt)
+
 
 def gen_auth(date,padid):
     global args
@@ -252,13 +259,113 @@ def gen_auth(date,padid):
         txt+='\n'
     
     if args.pdf or args.all or args.allformats:
-        pdf.output("{}_{}_auth.pdf".format(date,padid))
+        pdf.output("codebooks{}{}_{}_auth.pdf".format(os.sep,date,padid))
     if args.pickle or args.all or args.allformats:
-        with open('{}_{}_auth.pickle'.format(date,padid), 'wb') as f:
+        with open('codebooks{}{}_{}_auth.pickle'.format(os.sep,date,padid), 'wb') as f:
             pickle.dump(pickledict, f, pickle.HIGHEST_PROTOCOL)
     if args.txt or args.all or args.allformats:
-        with open('{}_{}_auth.txt'.format(date,padid), "w") as file:
+        with open('codebooks{}{}_{}_auth.txt'.format(os.sep,date,padid), "w") as file:
             file.write(txt)
+
+
+def gen_brevity(date,padid):
+    global args
+    with open('brevitycodes','r') as file:
+        codes = file.read()
+    codes = codes[:len(codes)-1]
+    codes = codes.upper().split('\n')
+    codes.sort()
+
+    codebook = {}
+    wordlen = len(codes)
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Courier", size=24,style='B')
+
+    pdf.cell(0, 20, txt="TOP SECRET", ln=1, align="C")
+    pdf.cell(0, 5, txt="BREVITY CODES", ln=1, align="C")
+    pdf.cell(0, 5, txt='', ln=1, align="C")
+    pdf.set_font("Courier", size=12)
+    pdf.cell(0, 5, txt=date, ln=1, align="C")
+    pdf.cell(0, 5, txt='PAD ID: '+padid, ln=1, align="C")
+    pdf.set_font("Courier", size=12, style='B')
+    pdf.cell(0, 10, txt='DESTROY BY BURNING WHEN IN RISK OF CAPTURE', ln=1, align="C")
+    pdf.cell(0, 5, txt='', ln=1, align="C")
+    txt='TOP SECRET\nBREVITY CODES\n{}\nPAD ID: {}\n'.format(date,padid)
+    txt=txt+'SECURELY WIPE WHEN IN RISK OF CAPTURE\n\n'
+        
+    pdf.set_font("Courier", size=11)
+    with open('codenumbers','r') as file:
+        use = file.read().split('\n')
+
+    x = []
+    for i in range(len(codes)):
+        codebook[use[i]] = codes[i].lower()
+        x.append((use[i], codes[i]))
+        txt+= '{}    {}\n'.format(use[i],codes[i])
+
+    pages = []
+    lines = []
+    linelen = 52
+    columns=1
+    cc = 0
+    n = 0
+
+    while 1:
+        
+        if cc >= (linelen):
+            columns += 1
+            
+        if columns > 2:
+            cc = 0
+            pages.append(lines)
+            lines = []
+            columns = 1
+        
+        if len(pages)>0:
+            linelen = 65
+
+        for i in range(linelen):
+            
+            try:
+                l = x.pop(0)
+            except IndexError:
+                l = ('   ','    ')
+                
+            len1 = 28 - (4+len(l[1]))
+            spc1 = ''.join(' ' for _ in range(len1))
+                
+            if columns == 1:
+                lines.append('{}  {}{}'.format( l[0], l[1], spc1 ))
+            else:
+                lines[i] = lines[i]+'{}  {}{}'.format( l[0], l[1], spc1 )
+       
+            n += 1
+            cc += 1
+        
+        cc = 0
+        columns += 1
+        if len(x) == 0:
+            pages.append(lines)
+            break
+
+    while len(pages)>0:
+        page = pages.pop(0)
+        for i in page:
+            pdf.cell(0, 4, txt=''+i, ln=1, align="C")
+        if len(pages)>0:
+            pdf.add_page()
+
+    if args.pdf or args.all or args.allformats:
+        pdf.output("codebooks{}{}_{}_brevitycodes.pdf".format(os.sep,date,padid))
+    if args.pickle or args.all or args.allformats:
+        with open('codebooks{}{}_{}_brevitycodes.pickle'.format(os.sep,date,padid), 'wb') as f:
+            pickle.dump(codebook, f, pickle.HIGHEST_PROTOCOL)
+    if args.txt or args.all or args.allformats:
+        with open('codebooks{}{}_{}_brevitycodes.txt'.format(os.sep,date,padid), "w") as file:
+            file.write(txt)
+
 
 if __name__ == '__main__':
     
@@ -272,6 +379,7 @@ if __name__ == '__main__':
     parser.add_argument('--otp', help='Generate OTP pads',required=False,action="store_true")
     parser.add_argument('--auth', help='Generate Authentification table',required=False,action="store_true")
     parser.add_argument('--aes', help='Generate AES code pads',required=False,action="store_true")
+    parser.add_argument('--brevity', help='Generate brevity codes',required=False,action="store_true")
     args = parser.parse_args()
     
     if not (args.aes or args.otp or args.auth or args.all or args.allcodes):
@@ -283,6 +391,12 @@ if __name__ == '__main__':
     padid = ''.join(random.choice('1234567890') for _ in range(6))
     padlen = 100
 
+    if not os.path.exists('codebooks'):
+        os.mkdir('codebooks')
+
+    if args.brevity or args.all or args.allcodes:
+        gen_brevity(date,padid)
+        print 'Brevity codes generated'
     if args.aes or args.all or args.allcodes:
         gen_aes(date,padid)
         print 'AES codes generated'

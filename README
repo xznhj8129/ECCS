@@ -119,6 +119,7 @@ ALWAYS use an airgapped, secure and encrypted computer to generate, store and in
     -e          Encrypt message
     -d          Decrypt message
     --keeppad   Do not trim used OTP pickle file (for testing only, reuse of OTPs make them easily broken)
+    --board BOARD  Checkerboard type
 
     ENCRYPT:
         ./otp.py -e --pad 2021-06-23_600815_otp.pickle 'auth D2-VVJS. this is a test message of the OTP system'
@@ -137,6 +138,7 @@ ALWAYS use an airgapped, secure and encrypted computer to generate, store and in
 6. HOW TO USE A PAPER ONE TIME PAD
     
     For more information visit: http://users.telenet.be/d.rijmenants/en/onetimepad.htm
+    Guide on OTP use: http://users.telenet.be/d.rijmenants/papers/one_time_pad.pdf
     The one time pad is absolutely unbreakable if used proprely.
     - NEVER re-use the same key to encrypt a different message
     - ALWAYS use a secure truly random number generator
@@ -170,7 +172,7 @@ ALWAYS use an airgapped, secure and encrypted computer to generate, store and in
     2. Convert your message according to this or any other table, these are known as "Straddling Checkerboards"
 
         -----------------------------------------------------
-        |  A    E    I    N    O    R    |      CT-46b      |
+        |  A    E    I    N    O    R    |      CT-46       |
         |  1    2    3    4    5    6    |                  |
         |---------------------------------------------------|
         |  B    C    D    F    G    H    J    K    L    M   |
@@ -179,14 +181,13 @@ ALWAYS use an airgapped, secure and encrypted computer to generate, store and in
         |  P    Q    S    T    U    V    W    X    Y    Z   |
         |  80   81   82   83   84   85   86   87   88   89  |
         |---------------------------------------------------|
-        |  SPC  .    ,    :    ?    /    (    )    "    -   |
+        |  SPC  .    ,    :    ?    /    (    )    "   CODE |
         |  90   91   92   93   94   95   96   97   98   99  |
         |---------------------------------------------------|
         |  0    1    2    3    4    5    6    7    8    9   |
         |  00   01   02   03   04   05   06   07   08   09  |
         -----------------------------------------------------
 
-        In this version, CODE was replaced with -
 
         MESSAGE:	ALL YOUR BASE ARE BELONG TO US.
         ENCODED:	11787 89088 58469 07018 22901 62907 02785 47490 83584 8291
@@ -217,3 +218,5 @@ ALWAYS use an airgapped, secure and encrypted computer to generate, store and in
     DECRYPTED:	11787 89088 58469 07018 22901 27801 47741 26309 82278 2465
     MESSAGE:	ALL YOUR BASE ARE BELONG TO US.
 
+
+7. BREVITY CODES
