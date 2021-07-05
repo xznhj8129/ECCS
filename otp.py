@@ -228,7 +228,10 @@ if __name__ == '__main__':
             if msgno in padbook:
                 firstavail = msgno
                 break
-
+                
+    padid = args_pad.split('/')
+    padid = padid[len(padid)-1].split('_')[1]
+            
     cipher = checkerboard(args.board.lower(),padbook[msgno])
     if args.brevity:
         cipher.brevity = True
@@ -241,11 +244,12 @@ if __name__ == '__main__':
     if args.e:
         encrypted = cipher.encrypt(args.message,firstavail)
         if not args.keeppad: cipher.purgepad(args.pad)
-        print encrypted
+        print padid+encrypted
 
     elif args.d:
-        msgno=args.message[:5]
-        decrypted = cipher.decrypt(args.message)
+        padid = args.message[6:]
+        msgno=args.message[6:11]
+        decrypted = cipher.decrypt(args.message[6:])
         goodpad, message = decrypted
         if not args.keeppad and goodpad: cipher.purgepad(args.pad)
         print message

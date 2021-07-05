@@ -58,10 +58,10 @@ if __name__ == '__main__':
         with open(args.keyfile, 'rb') as f:
             codebook = pickle.load(f)
         
-        key1 = binascii.a2b_hex(codebook[args.key1].upper())
-        key2 = binascii.a2b_hex(codebook[args.key2].upper())
+        key1 = binascii.a2b_hex(codebook[args.key1.upper()])
+        key2 = binascii.a2b_hex(codebook[args.key2.upper()])
         binkey = key1+key2
-        biniv = binascii.a2b_hex(codebook[args.iv].upper())
+        biniv = binascii.a2b_hex(codebook[args.iv.upper()])
             
     else:
         binkey = args.key1+args.key2

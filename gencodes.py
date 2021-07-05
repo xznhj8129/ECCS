@@ -18,8 +18,7 @@ def randcode():
 def randnumber():
     return random.choice(range(0,9))
 
-def gen_otp(padlen,date,padid):
-    global args
+def gen_otp(padlen,date,padid, args):
     
     block_h = 16
     block_w = 10
@@ -149,7 +148,7 @@ def gen_otp(padlen,date,padid):
             pickle.dump(pickledict, f, pickle.HIGHEST_PROTOCOL)
 
 
-def gen_aes(date,padid):
+def gen_aes(date,padid, args):
     txt=''
     messages = 100
     linesn = messages*3
@@ -204,8 +203,7 @@ def gen_aes(date,padid):
             file.write(txt)
 
 
-def gen_auth(date,padid):
-    global args
+def gen_auth(date,padid, args):
     grid_w = 9
     grid_v = 48
 
@@ -268,8 +266,7 @@ def gen_auth(date,padid):
             file.write(txt)
 
 
-def gen_brevity(date,padid):
-    global args
+def gen_brevity(date,padid, args):
     with open('brevitycodes','r') as file:
         codes = file.read()
     codes = codes[:len(codes)-1]
@@ -357,6 +354,7 @@ def gen_brevity(date,padid):
         if len(pages)>0:
             pdf.add_page()
 
+    
     if args.pdf or args.all or args.allformats:
         pdf.output("codebooks{}{}_{}_brevitycodes.pdf".format(os.sep,date,padid))
     if args.pickle or args.all or args.allformats:
@@ -365,6 +363,7 @@ def gen_brevity(date,padid):
     if args.txt or args.all or args.allformats:
         with open('codebooks{}{}_{}_brevitycodes.txt'.format(os.sep,date,padid), "w") as file:
             file.write(txt)
+
 
 
 if __name__ == '__main__':
@@ -395,15 +394,15 @@ if __name__ == '__main__':
         os.mkdir('codebooks')
 
     if args.brevity or args.all or args.allcodes:
-        gen_brevity(date,padid)
+        gen_brevity(date,padid, args)
         print 'Brevity codes generated'
     if args.aes or args.all or args.allcodes:
-        gen_aes(date,padid)
+        gen_aes(date,padid, args)
         print 'AES codes generated'
     if args.auth or args.all or args.allcodes:
-        gen_auth(date,padid)
+        gen_auth(date,padid, args)
         print 'Authentifier generated'
     if args.otp or args.all or args.allcodes:
-        gen_otp(padlen,date,padid)
+        gen_otp(padlen,date,padid, args)
         print 'One Time Pad generated'
     print 'Crypto pads {} {} generated'.format(padid,date)
