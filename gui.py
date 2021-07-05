@@ -207,56 +207,57 @@ while 1:
             args_e = ch == "One Time Pad Encrypt"
             args_d = ch == "One Time Pad Decrypt"
             args_board = 'ct46-2'
-            args_brevity = False
+            args_brevity = True
             if not codebook_otp:
                 args_pad = easygui.fileopenbox(msg="Select Pickle file", title=titlebar, default='*_otp.pickle', filetypes=["*.pickle"], multiple=False)
             else:
                 args_pad = codebook_otp
             padid = args_pad.split('/')
             padid = padid[len(padid)-1].split('_')[1]
-
             firstavail = None
-            
-            args_message = ""
-            while 1:
-                x = easygui.textbox(msg="Enter the message below",text=args_message,title=titlebar)
-                if x==None: break
-                args_message = x
-            
-                if args_e or args_d:
-                    with open(args_pad, 'rb') as f:
-                        padbook = pickle.load(f)
-                    for i in range(0,1000):
-                        msgno=str(i+1)
-                        while len(msgno)<5:
-                            msgno='0'+msgno
-                        if msgno in padbook:
-                            firstavail = msgno
-                            break
+    
+            args_message = easygui.textbox(msg="Enter the message below",text='',title=titlebar)
+            if args_message == None: 
+                continue
+        
+            if args_e or args_d:
+                with open(args_pad, 'rb') as f:
+                    padbook = pickle.load(f)
+                for i in range(0,1000):
+                    msgno=str(i+1)
+                    while len(msgno)<5:
+                        msgno='0'+msgno
+                    if msgno in padbook:
+                        firstavail = msgno
+                        break
 
-                cipher = checkerboard(args_board.lower(),padbook[msgno])
-                if args_brevity:
-                    cipher.brevity = True
-                    with open(args_brevity, 'rb') as f:
-                        cipher.codebook = pickle.load(f)
-                    cipher.reversecodebook = {}
-                    for i in cipher.codebook:
-                        cipher.reversecodebook[cipher.codebook[i].lower()] = i
-                        
-                if args_e:
+            cipher = checkerboard(args_board.lower(),padbook[msgno])
+            if args_brevity:
+                if not codebook_brevity:
+                     codebook_brevity = easygui.fileopenbox(msg="Select Brevity Codes Pickle file", title=titlebar, default='*_brevitycodes.pickle', filetypes=["*.pickle"], multiple=False)
+                cipher.brevity = True
+                with open(codebook_brevity, 'rb') as f:
+                    cipher.codebook = pickle.load(f)
+                cipher.reversecodebook = {}
+                for i in cipher.codebook:
+                    cipher.reversecodebook[cipher.codebook[i].lower()] = i
+                    
+            if args_e:
+                try:
                     encrypted = padid+cipher.encrypt(args_message,firstavail)
-                    if not args_keeppad: cipher.purgepad(args_pad)
-                    easygui.textbox(msg="Encrypted message below. Use Control+C to copy.",title=titlebar,text=encrypted)
-                    break
+                except Exception as e:
+                    easygui.msgbox("Error!\n"+str(e)+'\n'+str(type(e)),titlebar)
+                    continue
+                if not args_keeppad: cipher.purgepad(args_pad)
+                easygui.textbox(msg="Encrypted message below. Use Control+C to copy.",title=titlebar,text=encrypted)
 
-                elif args_d:
-                    padid = args_message[:6]
-                    msgno=args_message[6:11]
-                    decrypted = cipher.decrypt(args_message[6:])
-                    goodpad, message = decrypted
-                    if not args_keeppad and goodpad: cipher.purgepad(args_pad)
-                    easygui.textbox(msg="Decrypted message below. Use Control+C to copy.",title=titlebar,text=message)
-                    break
+            elif args_d:
+                padid = args_message[:6]
+                msgno = args_message[6:11]
+                decrypted = cipher.decrypt(args_message[6:])
+                goodpad, message = decrypted
+                if not args_keeppad and goodpad: cipher.purgepad(args_pad)
+                easygui.textbox(msg="Decrypted message below. Use Control+C to copy.",title=titlebar,text=message)
                     
         except Exception as e:
             easygui.msgbox("Error!\n"+str(e)+'\n'+str(type(e)),titlebar)

@@ -69,7 +69,7 @@ class checkerboard():
         while len(msgno)<5:
             msgno='0'+msgno
         self.usedno = msgno
-        pt=plaintext.lower()
+        pt=plaintext.lower().encode('utf-8')
         
         if self.brevity:
             for i in self.reversecodebook:
@@ -84,7 +84,7 @@ class checkerboard():
                 brevconv = True
             else:
                 if i not in self.checkerboard.keys():
-                    raise(Exception('Character "'+i+'" not found in checkerboard '+self.boardtype))
+                    raise Exception('Character "'+i+'" not found in checkerboard '+self.boardtype)
                 if brevconv and i in '0123456789':
                     converted=converted+i
                 elif brevconv:
@@ -93,7 +93,7 @@ class checkerboard():
                 if not brevconv: converted=converted+str(self.checkerboard[i])
                 
         if len(converted)>len(self.pad):
-            raise IOError('Message longer than self.pad! Msg: {} chars Pad: {} chars'.format(len(converted),len(self.pad)))
+            raise Exception('Message longer than self.pad! Msg: {} chars Pad: {} chars'.format(len(converted),len(self.pad)))
             
         while len(converted)%5!=0:
             converted=converted+'91'
@@ -178,7 +178,6 @@ class checkerboard():
         text=''
         a=decrypted
         cleartext=''
-        print a
         while len(a)>0:
             for i in self.reverse:
                 if a.startswith(i):
@@ -229,7 +228,7 @@ if __name__ == '__main__':
                 firstavail = msgno
                 break
                 
-    padid = args_pad.split('/')
+    padid = args.pad.split('/')
     padid = padid[len(padid)-1].split('_')[1]
             
     cipher = checkerboard(args.board.lower(),padbook[msgno])
