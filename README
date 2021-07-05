@@ -6,7 +6,6 @@ documents (except the AES crypter which requires some form of computer) as well 
 
 ALWAYS use an airgapped, secure and encrypted computer to generate, store and interact with code books and keys.
 
-
 1. GENERATE CODE BOOKS
     usage: gencodes.py [-h] [--all] [--pdf] [--txt] [--pickle] [--otp] [--auth] [--aes]
     -h, --help    show this help message and exit
@@ -145,6 +144,7 @@ ALWAYS use an airgapped, secure and encrypted computer to generate, store and in
     - ALWAYS keep the key in a secure location
     - ALWAYS destroy the code pad after it has been used
 
+    Example WITHOUT brevity codes
     1. Randomly generate a few hundred numbers in groups of 5 in a cryptographically secure way
 
         Example code pad
@@ -220,3 +220,21 @@ ALWAYS use an airgapped, secure and encrypted computer to generate, store and in
 
 
 7. BREVITY CODES
+
+    Brevity codes are used with one time pads to replace long words or terms to shorten the message, they are always 4 numbers long. They are preceded with the CODE prefix (99). The numbers are NOT  converted (ex: CODE 0404 is just 990404, not 0909040004) with the checkerboard. This is done automatically in the tools using the pickle files. The codes can be safely reused as they are protected by the encryption.
+
+    Example:
+        Code for 'Come home' is 0027
+        Code for 'EMERGENCY' is 0911
+        Message is "Unit 7 Come home its an emergency"
+
+    U  n i t  _  7  _  COME HOME  _  i t  s  _  a n _  EMERGENCY
+    84 4 3 83 90 07 90 99 0027    90 3 83 82 90 1 4 90 99 0911
+    
+    When decrypting the process is the same in reverse, after a '99' transcribe the 4 next numbers directly and transcribe the words after.
+    
+    84 4 3 83 90 07 90   99 0027  90 3 83 82 90 1 4 90 99 0911
+    U  n i t  _  7  _  CODE 0027  _  i t  s  _  a n _  CODE 0911
+                       COME HOME                       EMERGENCY
+
+        
