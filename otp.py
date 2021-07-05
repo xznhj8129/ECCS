@@ -74,6 +74,7 @@ class checkerboard():
         if self.brevity:
             for i in self.reversecodebook:
                 if i in pt:
+                    print i,self.reversecodebook[i]
                     pt = pt.replace(i,'\x99'+self.reversecodebook[i])
         
         converted=''
@@ -161,24 +162,21 @@ class checkerboard():
         
         if goodpad:
             print 'Decryption successful'
-        
+
         decrypted=''
         enc=ciphertext[5:]
         for i in range(len(enc)):
             res = (int(enc[i]) + int(otp[i])) % 10
             decrypted=decrypted+str(res)
-            
-        if self.brevity:
-            while decrypted.find('99')>0:
-                ind = decrypted.find('99')
-                s = decrypted[ind:ind+6]
-                code = s[2:]
-                decrypted = decrypted.replace(s, bc[code])
-            
+
         text=''
         a=decrypted
         cleartext=''
         while len(a)>0:
+            if self.brevity and a.startswith('99'):
+                s = a[:6]
+                code = s[2:]
+                a = a.replace(s, bc[code])
             for i in self.reverse:
                 if a.startswith(i):
                     cleartext=cleartext+self.reverse[i]

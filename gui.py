@@ -3,6 +3,7 @@ import math
 import easygui
 import datetime
 import subprocess
+import traceback
 from aescrypt import *
 from gencodes import *
 from authentify import *
@@ -200,7 +201,7 @@ while 1:
                     pickle.dump(codebook, f, pickle.HIGHEST_PROTOCOL)
                     
         except Exception as e:
-            easygui.msgbox("Error!\n"+str(e)+'\n'+str(type(e)),titlebar)
+            easygui.msgbox("Error!\n"+traceback.format_exc(),titlebar)
             
     elif ch in ["One Time Pad Encrypt","One Time Pad Decrypt"]:
         try:
@@ -260,7 +261,7 @@ while 1:
                 easygui.textbox(msg="Decrypted message below. Use Control+C to copy.",title=titlebar,text=message)
                     
         except Exception as e:
-            easygui.msgbox("Error!\n"+str(e)+'\n'+str(type(e)),titlebar)
+            easygui.msgbox("Error!\n"+traceback.format_exc(),titlebar)
 
 
     elif ch == 'Generate codebooks':
