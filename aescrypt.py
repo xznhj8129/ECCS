@@ -6,6 +6,7 @@ import argparse
 import pickle
 from Crypto.Random import random
 from Crypto.Cipher import AES
+from Crypto.IO import PEM
 
 def AESencrypt(data, key, iv):
     x=data
@@ -33,7 +34,7 @@ if __name__ == '__main__':
     parser.add_argument('--key1', help='Encryption key 1/2 (32 characters)')
     parser.add_argument('--key2', help='Encryption key 2/2 (32 characters)')
     parser.add_argument('--iv', help='Initiation vector (16 characters)')
-    parser.add_argument('--b64', help='Base64 encoding of input/output',action="store_true")
+    parser.add_argument('--pem', help='PEM encoding of input/output',action="store_true")
     parser.add_argument('--rawkey',help='No base64 for keys and IV',action="store_true")
     parser.add_argument('--file', help='Encrypt/decrypt file, .enc extension',action="store_true")
     parser.add_argument('--keyfile', help='Use pickle key file',required=False)
@@ -73,8 +74,8 @@ if __name__ == '__main__':
             with open(filename,'rb') as file:
                 filecontent = file.read()
             encfile = AESencrypt(filecontent, binkey, biniv)
-            if args.b64: 
-                encfile = binascii.b2a_hex(encfile)
+            if args.pem: 
+                encfile = PEM.encode(encfile,'FILE')
             with open(filename+'.enc','wb') as file:
                 file.write(encfile)
             print filename+'.enc'
@@ -84,8 +85,8 @@ if __name__ == '__main__':
             with open(filename,'rb') as file:
                 filecontent = file.read()
             newfilename = filename[:filename.find('.enc')]
-            if args.b64: 
-                filecontent = binascii.a2b_hex(filecontent)
+            if args.pem: 
+                filecontent = PEM.decode(filecontent)[0]
             decfile = AESdecrypt(filecontent, binkey, biniv)
             with open(newfilename,'wb') as file:
                 file.write(decfile)
@@ -94,13 +95,14 @@ if __name__ == '__main__':
     else:
         if args.e:
             a = AESencrypt(args.message, binkey, biniv)
-            if args.b64:
-                print binascii.b2a_hex(a)
+            if args.pem:
+                print PEM.encode(a,'MESSAGE')
             else:
                 print a
             
         elif args.d:
-            if args.b64:
+            if args.pem:
+                a = PEM.decode(args.message)[0]
                 a = binascii.a2b_hex(args.message)
             else:
                 a = args.message

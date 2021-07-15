@@ -172,13 +172,14 @@ while 1:
             
                 if args_e:
                     a = AESencrypt(args_message, binkey, biniv)
-                    message = binascii.b2a_hex(a)
+                    message = PEM.encode(a,'MESSAGE')
                     if args_keyfile:
-                        message = args_key1.upper()+args_key2.upper()+args_iv.upper()+'-'+message
+                        message = args_key1.upper()+args_key2.upper()+args_iv.upper()+'///'+message
                     easygui.textbox(msg="Encrypted message below. Use Control+C to copy.",title=titlebar,text=message)
                     
                 elif args_d:
-                    a = binascii.a2b_hex(args_message)
+                    print str([args_message])
+                    a = PEM.decode(args_message)[0]
                     message = AESdecrypt(a, binkey, biniv)
                     easygui.textbox(msg="Decrypted message below. Use Control+C to copy.",title=titlebar,text=message)
                     

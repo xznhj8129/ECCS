@@ -162,6 +162,8 @@ class checkerboard():
         
         if goodpad:
             print 'Decryption successful'
+        else:
+			return (False, "Decryption error")
 
         decrypted=''
         enc=ciphertext[5:]
@@ -245,7 +247,7 @@ if __name__ == '__main__':
 
     elif args.d:
         padid = args.message[6:]
-        msgno=args.message[6:11]
+        msgno = args.message[6:11]
         decrypted = cipher.decrypt(args.message[6:])
         goodpad, message = decrypted
         if not args.keeppad and goodpad: cipher.purgepad(args.pad)
