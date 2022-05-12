@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 from Crypto import Random
 from Crypto.Random import random
 import string

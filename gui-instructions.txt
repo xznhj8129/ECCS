@@ -1,0 +1,48 @@
+The gui.py uses easygui to create a simpler method of use for non-technical users.
+
+1. Create codebooks (if you are the cryptokey issuer)
+    Select "Generate codebooks"
+    Select which codes to generate (usually All)
+    Select which format to generate
+        NOTE: You should pick ONE method of using this system:
+
+        A. Pen and Paper, using printed PDF or TXT format sheets that you physically cut out codes from once they are used.
+
+        B. Airgapped computer using the ECCS GUI and Pickle files.
+        Doing both and having multiple copies of codebooks would create the danger that the codes are not securely cleared from 
+        all of them immediately once used. Multiple parties do not have to use the same method as messages encrypted on a computer 
+        can be decrypted by hand, and vice versa, obviously excluding AES messages, but a single party should not mix them.
+    Generated codepads will be in the "codebooks folder" with names such as "2022-05-12_288394_auth.pickle"
+    The filename is obviously the date created, but also the key ID.
+
+2. Select codebooks to use
+    Select "Select codebooks"
+    Enter the date and key ID that is in the filename, for example: 2022-05-12_288394_auth.pickle
+    Date: 2022-05-12
+    ID: 288394
+    ECCS-GUI will now use those codes
+
+3. Menu options
+    AES Encrypt
+
+    AES Decrypt
+
+    AES File Encrypt
+
+    AES File Decrypt
+
+    Authentify
+
+    Select codebooks: see above
+
+    Generate codebooks: see above
+
+    Securely wipe file
+
+    DESTROY CODEBOOKS
+        Using shredcodes.sh this will securely wipe all codebooks, you will be asked for confirmation first. The script can also be run stand-alone.
+
+    TEST MODE TOGGLE
+        This is an UNSECURE debug mode which allows the re-use of codes, they will not be deleted from the files. Do not use this in a live environment. Controlled by "args_keeppad = True" in the code.
+
+    Exit

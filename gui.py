@@ -29,7 +29,7 @@ class gen_args():
 v = str( 1.2 )
 titlebar = 'ECCS GUI'+v
 
-args_keeppad = True
+args_keeppad = True # change to False for production
 
 try:
     with open('.usecodes','r') as file:
@@ -345,7 +345,7 @@ while 1:
                 for cmde in commands:
                     execproc = subprocess.Popen(cmde, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
                     cmdoutput = execproc.stdout.read() + execproc.stderr.read()
-                    print(cmdoutput)
+                    #print(cmdoutput)
                 
                 easygui.msgbox('File wiped',titlebar)
 
@@ -372,11 +372,14 @@ while 1:
             for cmde in commands:
                 execproc = subprocess.Popen(cmde, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
                 cmdoutput = execproc.stdout.read() + execproc.stderr.read()
-                print(cmdoutput)
+                #print(cmdoutput)
             easygui.msgbox('Codebooks wiped',titlebar)
             
     elif ch == 'TEST MODE TOGGLE':
-        confirm = easygui.ynbox(msg='ARE YOU SURE?\nTurning off Live mode will prevent ECCS from clearing used keys, making it easy to crack messages if they are reused in a real environment.',title=titlebar)
+        if not args_keeppad:
+            confirm = easygui.ynbox(msg='ARE YOU SURE?\nTurning off Live mode will prevent ECCS from clearing used keys, making it easy to crack messages if they are reused in a real environment.',title=titlebar)
+        else:
+            confirm = True
         if confirm:
             args_keeppad = not args_keeppad
 
