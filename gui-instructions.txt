@@ -24,20 +24,52 @@ The gui.py uses easygui to create a simpler method of use for non-technical user
 
 3. Menu options
     AES Encrypt
-
+        Will ask you "Choose key mode"
+            Plain key: plain base64 key entered from paper or text
+            Pickle keys: .pickle file that will have the key wiped automatically after
+        Enter your message
+        Will give you a PEM encoded message like following
+        -----BEGIN AES MESSAGE 822308 A1A2B1-----
+        PibfJjEUEv9KXPIe77k7jw==
+        -----END AES MESSAGE 822308 A1A2B1-----
+        The header contains the Key ID, the 2 key codes and the IV code, so you know that to decrypt you need the A1 and A2 key halves and B1 as IV from codebook 822308 
+        You must not change the message header
+    
     AES Decrypt
+        Same as Encrypt except you input the encrypted message
 
     AES File Encrypt
+        Same except AES Encrypt except you select a file instead of entering a message
+        Encrypted file will be saved as *.enc
 
     AES File Decrypt
+        Same as above but replaced
+        Decrypted file will have the .enc file type removed
+
+    One Time Pad Encrypt
+        This requires pickle files
+        Will encrypt a simple text message (few special characters allowed, see CT46-2.png)
+        The resulting message will look like: 8223080000156741233206175865947
+        822308: the codebook ID
+        00001: the pad ID
+        56741: the first 5 digits of the pad (not used for encryption, only validation)
+        233206175865947: the actual encrypted message
+        The encryption system uses the brevity codes to shorten the length of the message
+        The system will automatically wipe the used pad
+    
+    One Time Pad Decrypt
+        See above, simply enter the encrypted message and the system will automatically decrypt it and wipe the used pad
 
     Authentify
+        Enter a verification code (example: A01) and you will get the corresponding authentification code (example: M39D), or vice-versa
+        The system will automatically wipe the used code
 
     Select codebooks: see above
 
     Generate codebooks: see above
 
     Securely wipe file
+        Uses shred to securely shred a file
 
     DESTROY CODEBOOKS
         Using shredcodes.sh this will securely wipe all codebooks, you will be asked for confirmation first. The script can also be run stand-alone.
