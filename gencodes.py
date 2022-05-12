@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 from Crypto import Random
 from Crypto.Random import random
@@ -131,7 +131,7 @@ def gen_otp(padlen,date,padid, args):
             pdf.cell(0, 4, txt=nos, ln=1, align="C")
             pdf.cell(0, 4, txt='', ln=1, align="C")
 
-    print 'Generated OTP Length: {} numbers'.format(len(otp))
+    print('Generated OTP Length: {} numbers'.format(len(otp)))
     pdf.add_page()
     pdf.image('CT46.png',w=190,y=100)
     #pdf.cell(0, 4, txt='', ln=1, align="C")
@@ -188,9 +188,9 @@ def gen_aes(date,padid, args):
         b=keys.pop(0)
         keyfile['A'+si] = a
         keyfile['B'+si] = b
-        pdf.cell(0, 4, txt=si+'    '+a+'    '+b, ln=1, align="C")
+        pdf.cell(0, 4, txt=str(si+'    '+str(a,'utf-8')+'    '+str(b,'utf-8')), ln=1, align="C")
         pdf.cell(0, 4, txt='', ln=1, align="C")
-        txt+= str(i+1)+'\t\t'+a+'\t'+b+'\n'
+        txt+= str(str(i+1)+'\t\t'+str(a,'utf-8')+'\t'+str(b,'utf-8'))+'\n'
 
 
     if args.pdf or args.all or args.allformats:
@@ -395,14 +395,14 @@ if __name__ == '__main__':
 
     if args.brevity or args.all or args.allcodes:
         gen_brevity(date,padid, args)
-        print 'Brevity codes generated'
+        print('Brevity codes generated')
     if args.aes or args.all or args.allcodes:
         gen_aes(date,padid, args)
-        print 'AES codes generated'
+        print('AES codes generated')
     if args.auth or args.all or args.allcodes:
         gen_auth(date,padid, args)
-        print 'Authentifier generated'
+        print('Authentifier generated')
     if args.otp or args.all or args.allcodes:
         gen_otp(padlen,date,padid, args)
-        print 'One Time Pad generated'
-    print 'Crypto pads {} {} generated'.format(padid,date)
+        print('One Time Pad generated')
+    print('Crypto pads {} {} generated'.format(padid,date))

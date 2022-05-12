@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 from Crypto.Random import random
 import binascii
@@ -69,12 +69,12 @@ class checkerboard():
         while len(msgno)<5:
             msgno='0'+msgno
         self.usedno = msgno
-        pt=plaintext.lower().encode('utf-8')
-        
+        pt = plaintext.lower()
+
         if self.brevity:
             for i in self.reversecodebook:
                 if i in pt:
-                    print i,self.reversecodebook[i]
+                    print(i,self.reversecodebook[i])
                     pt = pt.replace(i,'\x99'+self.reversecodebook[i])
         
         converted=''
@@ -83,9 +83,11 @@ class checkerboard():
             if i == '\x99':
                 converted=converted+'99'
                 brevconv = True
+            elif i=='\n':
+                pass
             else:
                 if i not in self.checkerboard.keys():
-                    raise Exception('Character "'+i+'" not found in checkerboard '+self.boardtype)
+                    raise Exception('Character "{}" not found in checkerboard {}'.format(i,self.boardtype))
                 if brevconv and i in '0123456789':
                     converted=converted+i
                 elif brevconv:
@@ -116,10 +118,10 @@ class checkerboard():
             else:
                 otp.append(ourpad.pop(0))
         
-        print 'message no:',msgno
-        print 'pad id:', padid
+        #print 'message no:',msgno
+        #print 'pad id:', padid
         
-        ciphertext=msgno+ padid
+        ciphertext = msgno+ padid
         
         for i in range(len(con)):
             res= (int(con[i]) - int(otp[i])) % 10
@@ -157,16 +159,17 @@ class checkerboard():
                 otp.append(ourpad.pop(0))
                 
         goodpad = (padid == msgid)
-        print 'message no:',msgno
-        print 'pad id:',padid
+        #print 'message no:',msgno
+        #print 'pad id:',padid
         
         if goodpad:
-            print 'Decryption successful'
+            print('Decryption successful')
         else:
-			return (False, "Decryption error")
+            return (False, "Decryption error")
 
         decrypted=''
         enc=ciphertext[5:]
+        #print [enc]
         for i in range(len(enc)):
             res = (int(enc[i]) + int(otp[i])) % 10
             decrypted=decrypted+str(res)
@@ -206,7 +209,7 @@ class checkerboard():
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('message', help='Message, filename or OTP len in blocks of 5')
+    parser.add_argument('message', help='Message, filename or OTP len in blocks of 5',nargs="?")
     parser.add_argument('--pad', help="One time pad file to use")
     parser.add_argument('-e', help='Encrypt',required=False,action="store_true")
     parser.add_argument('-d', help='Decrypt',required=False,action="store_true")
@@ -216,7 +219,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     firstavail = None
-    
+    if not args.message:
+        if not sys.stdin.isatty():
+            args.message = sys.stdin.read()
+        else:
+            parser.print_help()
+            parser.exit()
+
+    if not (args.e ^ args.d):
+        print('Error: unknown action')
+        exit(1)
+
     if args.e or args.d:
         with open(args.pad, 'rb') as f:
             padbook = pickle.load(f)
@@ -227,7 +240,16 @@ if __name__ == '__main__':
             if msgno in padbook:
                 firstavail = msgno
                 break
-                
+    
+    #inmsg = ''
+    #for i in args.message:
+    #    try:
+    #        int(i)
+    #        inmsg+=i
+    #    except:
+    #        pass
+    inmsg = args.message
+    
     padid = args.pad.split('/')
     padid = padid[len(padid)-1].split('_')[1]
             
@@ -241,15 +263,15 @@ if __name__ == '__main__':
             cipher.reversecodebook[cipher.codebook[i].lower()] = i
             
     if args.e:
-        encrypted = cipher.encrypt(args.message,firstavail)
+        encrypted = cipher.encrypt(inmsg,firstavail)
         if not args.keeppad: cipher.purgepad(args.pad)
-        print padid+encrypted
+        print(padid+encrypted, len(padid+encrypted))
 
     elif args.d:
-        padid = args.message[6:]
-        msgno = args.message[6:11]
-        decrypted = cipher.decrypt(args.message[6:])
+        padid = inmsg[6:]
+        msgno = inmsg[6:11]
+        decrypted = cipher.decrypt(inmsg[6:])
         goodpad, message = decrypted
         if not args.keeppad and goodpad: cipher.purgepad(args.pad)
-        print message
+        print(message)
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 import os
 import sys
 import argparse
@@ -14,13 +14,16 @@ if __name__ == '__main__':
     
     with open(args.authtable, 'rb') as f:
         padbook = pickle.load(f)
-        
+
     if len(args.code)==3:
-        print padbook[args.code.upper()]
+        print(padbook[args.code.upper()])
         
     elif len(args.code)==4:
         if args.code in padbook.values():
-            print padbook.keys()[padbook.values().index(args.code.upper())]
+            print (list(padbook.keys())[list(padbook.values()).index(args.code.upper())])
         else:
-            print 'Code not found'
+            print('Code not found')
+            
+    else:
+        print('Invalid code')
         

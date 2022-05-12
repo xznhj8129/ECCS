@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 import binascii
 import os
 import sys
@@ -7,28 +7,31 @@ import pickle
 from Crypto.Random import random
 from Crypto.Cipher import AES
 from Crypto.IO import PEM
+from Crypto.Util.Padding import pad, unpad
 
 def AESencrypt(data, key, iv):
-    x=data
-    while len(x) % 16 != 0:
-        x += '\0'
     cipher = AES.new(key, AES.MODE_CBC, iv)
-    encrypted = cipher.encrypt(bytes(x))
+    if type(data) is str:
+        bytedata = bytes(data,'utf-8')
+    else:
+        bytedata = data
+    padded = pad(bytedata,16)
+    encrypted = cipher.encrypt(padded) #fuckup on files
     del cipher
     return encrypted
 
-def AESdecrypt(data, key, iv):
+def AESdecrypt(data, key, iv, binary):
     cipher = AES.new(key, AES.MODE_CBC, iv)
-    decrypted = cipher.decrypt(data)
-    while decrypted.endswith('\0'):
-        decrypted = decrypted[:len(decrypted)-1]
+    dec = cipher.decrypt(data)
+    unpadded = unpad(dec,16)
+    decrypted = unpadded
     del cipher
     return decrypted
 
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('message', help='Message or filename')
+    parser.add_argument('message', help='Message or filename',nargs='?')
     parser.add_argument('-e', help='Encrypt',action='store_true')
     parser.add_argument('-d', help='Decrypt',action='store_true')
     parser.add_argument('--key1', help='Encryption key 1/2 (32 characters)')
@@ -40,17 +43,23 @@ if __name__ == '__main__':
     parser.add_argument('--keyfile', help='Use pickle key file',required=False)
     parser.add_argument('--keeppad', help="Do not purge pad (dangerous)",required=False,action="store_true")
     args = parser.parse_args()
+            
+    if not args.message:
+        if not sys.stdin.isatty():
+            args.message = sys.stdin.read()
+        else:
+            parser.print_help()
+            parser.exit()
 
     if not (args.e ^ args.d):
-        print 'Error: unknown action'
+        print('Error: unknown action')
         exit(1)
     if not args.key1 or not args.key2:
-        print 'Error: no encryption key'
+        print('Error: no encryption key')
         exit(1)
     if not args.iv:
-        print 'Error: no initiation vector'
+        print('Error: no initiation vector')
         exit(1)
-    print''
     
     if not args.rawkey and not args.keyfile:
         binkey = binascii.a2b_hex(args.key1+args.key2)
@@ -58,7 +67,7 @@ if __name__ == '__main__':
     elif args.keyfile:
         with open(args.keyfile, 'rb') as f:
             codebook = pickle.load(f)
-        
+        keyfileid = args.keyfile.split('_')[1]
         key1 = binascii.a2b_hex(codebook[args.key1.upper()])
         key2 = binascii.a2b_hex(codebook[args.key2.upper()])
         binkey = key1+key2
@@ -75,10 +84,10 @@ if __name__ == '__main__':
                 filecontent = file.read()
             encfile = AESencrypt(filecontent, binkey, biniv)
             if args.pem: 
-                encfile = PEM.encode(encfile,'FILE')
+                encfile = bytes(PEM.encode(encfile,'FILE'),'utf-8')
             with open(filename+'.enc','wb') as file:
                 file.write(encfile)
-            print filename+'.enc'
+            print(filename+'.enc')
             
         elif args.d:
             filename = args.message
@@ -86,27 +95,30 @@ if __name__ == '__main__':
                 filecontent = file.read()
             newfilename = filename[:filename.find('.enc')]
             if args.pem: 
-                filecontent = PEM.decode(filecontent)[0]
-            decfile = AESdecrypt(filecontent, binkey, biniv)
+                filecontent = PEM.decode(str(filecontent,'utf-8'))[0]
+            decfile = AESdecrypt(filecontent, binkey, biniv, True)
             with open(newfilename,'wb') as file:
                 file.write(decfile)
-            print newfilename
+            print(newfilename)
         
     else:
         if args.e:
             a = AESencrypt(args.message, binkey, biniv)
             if args.pem:
-                print PEM.encode(a,'MESSAGE')
+                if args.keyfile:
+                    print(PEM.encode(a,'AES MESSAGE {} {}'.format(keyfileid,args.key1.upper()+args.key2.upper()+args.iv.upper())))
+                else:
+                    print(PEM.encode(a,'AES MESSAGE'))
             else:
-                print a
+                print(a)
             
         elif args.d:
             if args.pem:
                 a = PEM.decode(args.message)[0]
-                a = binascii.a2b_hex(args.message)
+                #a = binascii.a2b_hex(args.message)
             else:
                 a = args.message
-            print AESdecrypt(a, binkey, biniv)
+            print(str(AESdecrypt(a, binkey, biniv,False),'utf-8'))
             
     if args.keyfile and not args.keeppad:
         overwrite = '00000000000000000000000000000000'

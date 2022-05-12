@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 import math
 import easygui
 import datetime
@@ -26,7 +26,7 @@ class gen_args():
             self.txt = 'txt' in self.formats
             self.pickle = 'pickle' in self.formats
 
-v = str( 1.0 )
+v = str( 1.2 )
 titlebar = 'ECCS GUI'+v
 
 args_keeppad = True
@@ -38,16 +38,20 @@ try:
     codebook_auth = 'codebooks'+os.sep+codes_set+'_auth.pickle'
     codebook_brevity = 'codebooks'+os.sep+codes_set+'_brevitycodes.pickle'
     codebook_otp = 'codebooks'+os.sep+codes_set+'_otp.pickle'
+    keyfileid = codes_set.split('_')[1]
 except:
     codes_set = None
     codebook_aes = None
     codebook_otp = None
     codebook_auth = None
     codebook_brevity = None
+    keyfileid = None
 
 while 1:
     
     mainmsg = 'Encrypted Covert Communication System\n\nUsing codes: {}'.format(codes_set)
+    if args_keeppad: mainmsg+='\n\nWARNING: TEST MODE ON, CODES WILL NOT BE CLEARED AFTER USE'
+    else: mainmsg+='\n\nWARNING: Live mode on, codes WILL be cleared after use'
     
     ch = easygui.choicebox(msg=mainmsg,
                            title=titlebar,
@@ -60,7 +64,9 @@ while 1:
                                     "Authentify",
                                     "Select codebooks",
                                     "Generate codebooks",
+                                    "Securely wipe file",
                                     "DESTROY CODEBOOKS",
+                                    "TEST MODE TOGGLE",
                                     "Exit"])
     
     if ch=='Exit' or ch==None: break
@@ -71,23 +77,21 @@ while 1:
         if not dat:
             continue
         codes_set = dat[0]+'_'+dat[1]
+        keyfileid = dat[1]
         with open('.usecodes','w') as file:
             file.write(codes_set)
-        try:
-            codebook_aes = 'codebooks'+os.sep+codes_set+'_aespad.pickle'
-            codebook_auth = 'codebooks'+os.sep+codes_set+'_auth.pickle'
-            codebook_brevity = 'codebooks'+os.sep+codes_set+'_brevitycodes.pickle'
-            codebook_otp = 'codebooks'+os.sep+codes_set+'_otp.pickle'
-            with open(codebook_aes,'r') as file:
-                x = file.read()
-            with open(codebook_auth,'r') as file:
-                x = file.read()
-            with open(codebook_otp,'r') as file:
-                x = file.read()
-            with open(codebook_brevity,'r') as file:
-                x = file.read()
-            del x
-        except:
+        codebook_aes = 'codebooks'+os.sep+codes_set+'_aespad.pickle'
+        codebook_auth = 'codebooks'+os.sep+codes_set+'_auth.pickle'
+        codebook_brevity = 'codebooks'+os.sep+codes_set+'_brevitycodes.pickle'
+        codebook_otp = 'codebooks'+os.sep+codes_set+'_otp.pickle'
+
+        files = True
+        if not os.path.isfile(codebook_aes): files = False
+        if not os.path.isfile(codebook_auth): files = False
+        if not os.path.isfile(codebook_brevity): files = False
+        if not os.path.isfile(codebook_otp): files = False
+
+        if not files:
             easygui.msgbox("Error: no such files",titlebar)
             codes_set = None
             codebook_aes = None
@@ -100,6 +104,7 @@ while 1:
             keymode = easygui.indexbox(msg='Choose key mode', title=titlebar, choices=('Plain key', 'Pickle keys'), default_choice='Plain key')
             
             if keymode == 1:
+                
                 if not codebook_aes:
                     keyfile = easygui.fileopenbox(msg="Select Pickle file", title=titlebar, default='*_aespad.pickle', filetypes=["*.pickle"], multiple=False)
                 else:
@@ -160,7 +165,7 @@ while 1:
                         filecontent = file.read()
                     newfilename = filename[:filename.find('.enc')]
                     filecontent = binascii.a2b_hex(filecontent)
-                    decfile = AESdecrypt(filecontent, binkey, biniv)
+                    decfile = AESdecrypt(filecontent, binkey, biniv,True)
                     with open(newfilename,'wb') as file:
                         file.write(decfile)
                     easygui.msgbox("File decrypted\nNew file name:{}".format(newfilename),titlebar)
@@ -172,15 +177,16 @@ while 1:
             
                 if args_e:
                     a = AESencrypt(args_message, binkey, biniv)
-                    message = PEM.encode(a,'MESSAGE')
                     if args_keyfile:
-                        message = args_key1.upper()+args_key2.upper()+args_iv.upper()+'///'+message
+                        message = PEM.encode(a,'AES MESSAGE {} {}'.format(keyfileid, args_key1.upper()+args_key2.upper()+args_iv.upper()))
+                    else:
+                        message = PEM.encode(a,'AES MESSAGE')
                     easygui.textbox(msg="Encrypted message below. Use Control+C to copy.",title=titlebar,text=message)
                     
                 elif args_d:
-                    print str([args_message])
+                    #print(str([args_message]))
                     a = PEM.decode(args_message)[0]
-                    message = AESdecrypt(a, binkey, biniv)
+                    message = str(AESdecrypt(a, binkey, biniv,False),'utf-8')
                     easygui.textbox(msg="Decrypted message below. Use Control+C to copy.",title=titlebar,text=message)
                     
             if args_keyfile and not args_keeppad:
@@ -285,16 +291,16 @@ while 1:
 
             if args.brevity or args.all or args.allcodes:
                 gen_brevity(date,padid, args)
-                print 'Brevity codes generated'
+                print('Brevity codes generated')
             if args.aes or args.all or args.allcodes:
                 gen_aes(date,padid, args)
-                print 'AES codes generated'
+                print('AES codes generated')
             if args.auth or args.all or args.allcodes:
                 gen_auth(date,padid, args)
-                print 'Authentifier generated'
+                print('Authentifier generated')
             if args.otp or args.all or args.allcodes:
                 gen_otp(padlen,date,padid, args)
-                print 'One Time Pad generated'
+                print('One Time Pad generated')
             easygui.msgbox('Crypto pads {} {} generated'.format(padid,date),titlebar)
             
     elif ch == 'Authentify':
@@ -317,6 +323,31 @@ while 1:
                 easygui.msgbox( 'Auth failed, code not found',titlebar)
         else:
             easygui.msgbox('Invalid code',titlebar)
+            
+    elif ch == 'Securely wipe file':
+        args_file = easygui.fileopenbox(msg="Select file to encrypt/decrypt", title=titlebar, default='*.*',filetypes='*', multiple=True)
+        print(args_file)
+        if args_file is not None:
+            confirm = easygui.ynbox(msg='ARE YOU SURE?\nWiping this file will destroy it forever.',title=titlebar)
+            if confirm:
+
+                if type(args_file) == str:
+                    files2wipe = [args_file]
+                elif type(args_file) == list:
+                    files2wipe = []
+                    for fn in args_file:
+                        files2wipe.append(fn)
+                
+                commands=[]
+                for fn in files2wipe:
+                    commands.append('shred -zuv -n 3 "{}"'.format(fn))
+                
+                for cmde in commands:
+                    execproc = subprocess.Popen(cmde, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+                    cmdoutput = execproc.stdout.read() + execproc.stderr.read()
+                    print(cmdoutput)
+                
+                easygui.msgbox('File wiped',titlebar)
 
     elif ch == 'DESTROY CODEBOOKS':
         
@@ -341,6 +372,11 @@ while 1:
             for cmde in commands:
                 execproc = subprocess.Popen(cmde, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
                 cmdoutput = execproc.stdout.read() + execproc.stderr.read()
-                print cmdoutput
+                print(cmdoutput)
             easygui.msgbox('Codebooks wiped',titlebar)
+            
+    elif ch == 'TEST MODE TOGGLE':
+        confirm = easygui.ynbox(msg='ARE YOU SURE?\nTurning off Live mode will prevent ECCS from clearing used keys, making it easy to crack messages if they are reused in a real environment.',title=titlebar)
+        if confirm:
+            args_keeppad = not args_keeppad
 

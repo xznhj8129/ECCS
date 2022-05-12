@@ -1,10 +1,18 @@
 ENCRYPTED COVERT COMMUNICATION SYSTEM
 
-ECCS is a simple python-based encryption/decryption system made to easily be able to send short symmetric-key encrypted
-messages to send over whatever method is necessary. The system is made to be able to be used both manually using printed 
-documents (except the AES crypter which requires some form of computer) as well as electronically.
+INTRODUCTION
+    ECCS is a simple python-based encryption/decryption system made to easily be able to send short symmetric-key encrypted
+    messages to send over whatever method is necessary. The system is made to be able to be used both manually using printed 
+    documents (except the AES crypter which requires some form of computer) as well as electronically.
 
-ALWAYS use an airgapped, secure and encrypted computer to generate, store and interact with code books and keys.
+    ALWAYS use an airgapped, secure and encrypted computer to generate, store and interact with code books and keys.
+
+    NOTE: You should pick ONE method of using this system:
+    A. Pen and Paper, using printed PDF or TXT format sheets that you physically cut out codes from once they are used.
+    B. Airgapped computer using the ECCS GUI and Pickle files.
+    Doing both and having multiple copies of codebooks would create the danger that the codes are not securely cleared from 
+    all of them immediately once used. Multiple parties do not have to use the same method as messages encrypted on a computer 
+    can be decrypted by hand, and vice versa, obviously excluding AES messages, but a single party should not mix them.
 
 1. GENERATE CODE BOOKS
     usage: gencodes.py [-h] [--all] [--pdf] [--txt] [--pickle] [--otp] [--auth] [--aes]
@@ -27,27 +35,33 @@ ALWAYS use an airgapped, secure and encrypted computer to generate, store and in
 3. AUTHENTIFICATION TABLE
     The authentification table is a very simple way to verify if the message is coming from someone in possession of 
     the propper documents. You just cross-reference the letters and numbers to the propper grid code. You can include 
-    an authentification in a message by putting in, for example, "C04=RGU4", and the recipient can verofy and see you 
+    an authentification in a message by putting in, for example, "C04=RGU4", and the recipient can verify and see you 
     are who you say you are. You can also issue a challenge and demand verification, asking "Authenticate H19" and 
     expecting "DJ9W". Using the authentification table in your messages is an extra layer of security.
 
 
 4. AES CRYPTER
 
-    usage: aescrypt.py [-h] [-e] [-d] [--key KEY] [--iv IV] [--b64] [--rawkey] [--file] message
+    usage: aescrypt.py [-h] [-e] [-d] [--key1 KEY1] [--key2 KEY2] [--iv IV]
+                       [--pem] [--rawkey] [--file] [--keyfile KEYFILE] [--keeppad]
+                       message
 
-    message     Message or filename
-    -h, --help  show this help message and exit
-    -e          Encrypt
-    -d          Decrypt
-    --key1 KEY1   1/2 Encryption key (32 characters)
-    --key2 KEY2   1/2 Encryption key (32 characters)
-    --iv IV     Initiation vector (16 characters)
-    --b64       Base64 encoding of input/output
-    --rawkey    No base64 for keys and IV
-    --file      Encrypt/decrypt file, .enc extension
-    --keyfile KEYFILE  Use pickle key file
-    --keeppad   Do not trim used keys from keyfile (for testing only, reuse of keys make them easily broken)
+    positional arguments:
+      message            Message or filename
+
+    optional arguments:
+      -h, --help         show this help message and exit
+      -e                 Encrypt
+      -d                 Decrypt
+      --key1 KEY1        Encryption key 1/2 (32 characters)
+      --key2 KEY2        Encryption key 2/2 (32 characters)
+      --iv IV            Initiation vector (16 characters)
+      --pem              PEM encoding of input/output
+      --rawkey           No base64 for keys and IV
+      --file             Encrypt/decrypt file, .enc extension
+      --keyfile KEYFILE  Use pickle key file
+      --keeppad          Do not purge pad (dangerous)
+
 
     The code blocks are 16 random bytes base64 encoded. Two blocks are required for keys and one for an IV, requiring 
     three blocks per message. This means 300 blocks are enough for 100 messages.
@@ -110,15 +124,22 @@ ALWAYS use an airgapped, secure and encrypted computer to generate, store and in
 
     The OTP script uses the same OTP technique as the manual one. It uses pickle files to get the OTP and removes them once they are used. 
 
-    usage: otp.py [-h] [--pad PAD] [-e] [-d] [--keeppad] message
+    usage: otp.py [-h] [--pad PAD] [-e] [-d] [--keeppad] [--board BOARD]
+                  [--brevity BREVITY]
+                  [message]
 
-    message     Message
-    -h, --help  show this help message and exit
-    --pad PAD   One time pad pickle file to use
-    -e          Encrypt message
-    -d          Decrypt message
-    --keeppad   Do not trim used OTP pickle file (for testing only, reuse of OTPs make them easily broken)
-    --board BOARD  Checkerboard type
+    positional arguments:
+      message            Message, filename or OTP len in blocks of 5
+
+    optional arguments:
+      -h, --help         show this help message and exit
+      --pad PAD          One time pad file to use
+      -e                 Encrypt
+      -d                 Decrypt
+      --keeppad          Do not purge pad (dangerous)
+      --board BOARD      Checkerboard type
+      --brevity BREVITY  Use brevity codes
+
 
     ENCRYPT:
         ./otp.py -e --pad 2021-06-23_600815_otp.pickle 'auth D2-VVJS. this is a test message of the OTP system'
