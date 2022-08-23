@@ -18,7 +18,7 @@ if __name__ == '__main__':
     if len(args.code)==3:
         print(padbook[args.code.upper()])
         
-    elif len(args.code)==4:
+    elif len(args.code)==5:
         if args.code in padbook.values():
             print (list(padbook.keys())[list(padbook.values()).index(args.code.upper())])
         else:

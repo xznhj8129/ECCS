@@ -12,7 +12,7 @@ from fpdf import FPDF
 import datetime
 
 def randcode():
-    return ''.join(random.choice('ABCDEFGHJKLMNPRSTUVWXYZ1234567890') for _ in range(4))
+    return ''.join(random.choice('ABCDEFGHJKLMNPRSTUVWXYZ1234567890') for _ in range(5))
 
 def randnumber():
     return random.choice(range(0,9))
@@ -132,10 +132,8 @@ def gen_otp(padlen,date,padid, args):
 
     print('Generated OTP Length: {} numbers'.format(len(otp)))
     pdf.add_page()
-    pdf.image('CT46.png',w=190,y=100)
+    pdf.image('data{}CT46.png'.format(os.sep),w=190,y=100)
     #pdf.cell(0, 4, txt='', ln=1, align="C")
-    pdf.add_page()
-    pdf.image('CT46-2.png',w=190,y=100)
 
     if args.pdf or args.all or args.allformats:
         pdf.output("codebooks{}{}_{}_otp.pdf".format(os.sep,date,padid))
@@ -229,7 +227,7 @@ def gen_auth(date,padid, args):
         codes.append(randcode())
 
     pdf.set_font("Courier", size=11)
-    pdf.cell(0, 10, txt='      A       B       C       D       E       F       G       H       J', ln=1, align="L")
+    pdf.cell(0, 10, txt='      A        B        C        D        E        F        G        H        J', ln=1, align="L")
     txt += '\tA\t\tB\t\tC\t\tD\t\tE\t\tF\t\tG\t\tH\t\tJ\n'
     pickledict = {}
     ind = {0:'A',1:'B',2:'C',3:'D',4:'E',5:'F',6:'G',7:'H',8:'J'}
@@ -266,7 +264,7 @@ def gen_auth(date,padid, args):
 
 
 def gen_brevity(date,padid, args):
-    with open('brevitycodes','r') as file:
+    with open('data{}brevitycodes'.format(os.sep),'r') as file:
         codes = file.read()
     codes = codes[:len(codes)-1]
     codes = codes.upper().split('\n')
@@ -292,7 +290,7 @@ def gen_brevity(date,padid, args):
     txt=txt+'SECURELY WIPE WHEN IN RISK OF CAPTURE\n\n'
         
     pdf.set_font("Courier", size=11)
-    with open('codenumbers','r') as file:
+    with open('data{}codenumbers'.format(os.sep),'r') as file:
         use = file.read().split('\n')
 
     x = []
@@ -386,7 +384,7 @@ if __name__ == '__main__':
         raise argparse.ArgumentTypeError('Error: pick one format') 
 
     date = datetime.datetime.utcnow().strftime("%Y-%m-%d")
-    padid = ''.join(random.choice('1234567890') for _ in range(6))
+    padid = ''.join(random.choice('1234567890') for _ in range(5))
     padlen = 100
 
     if not os.path.exists('codebooks'):

@@ -198,7 +198,8 @@
         MESSAGE:	ALL YOUR BASE ARE BELONG TO US.
         ENCODED:	11787 89088 58469 07018 22901 62907 02785 47490 83584 8291
         
-    3. Encrypt the message by adding without carrying (modulo 10), ex: 9 + 5 = 4, 4 - 9 = 5, using the code pad. Skip the first 5-char block.
+    3. Encrypt the message by adding without carrying (modulo 10), ex: 9 + 5 = 4, 4 - 9 = 5, using the code pad. 
+       Skip the first 5-number block.
 
         MESSAGE:	ALL YOUR BASE ARE BELONG TO US.
         ENCODED:	11787 89088 58469 07018 22901 62907 02785 47490 83584 8291 +
@@ -211,7 +212,7 @@
         Since this is the first message, prefix it with 00001 (5 characters).
         After the message number, add the first block of your code pad (63649). This is to verify the right code pad.
         So the message becomes:
-        00001636495097014388586159382429613334418154062828
+        00001 63649 64889 15882 24373 17624 29812 27801 47741 26309 82278 2465
     
     5. Send the message through whatever means
 
@@ -230,17 +231,18 @@
     Brevity codes are used with one time pads to replace long words or terms to shorten the message, they are always 4 numbers long. They are preceded with the CODE prefix (99). The numbers are NOT  converted (ex: CODE 0404 is just 990404, not 0909040004) with the checkerboard. This is done automatically in the tools using the pickle files. The codes can be safely reused as they are protected by the encryption.
 
     Example:
+        Code for 'Unit' is 0012
         Code for 'Come home' is 0027
         Code for 'EMERGENCY' is 0911
         Message is "Unit 7 Come home its an emergency"
 
-    U  n i t  _  7  _  COME HOME  _  i t  s  _  a n _  EMERGENCY
-    84 4 3 83 90 07 90 99 0027    90 3 83 82 90 1 4 90 99 0911
+       Unit  _  7  _    COME HOME  _  i t  s  _  a n _  EMERGENCY
+    99 0012 90 07 90 99 0027       90 3 83 82 90 1 4 90 99 0911
     
     When decrypting the process is the same in reverse, after a '99' transcribe the 4 next numbers directly and transcribe the words after.
     
-    84 4 3 83 90 07 90   99 0027  90 3 83 82 90 1 4 90 99 0911
-    U  n i t  _  7  _  CODE 0027  _  i t  s  _  a n _  CODE 0911
-                       COME HOME                       EMERGENCY
+    99   0012  90 07 90   99 0027  90 3 83 82 90 1 4 90 99   0911
+    CODE 0012  _  7  _  CODE 0027  _  i t  s  _  a n _  CODE 0911
+         UNIT                COME HOME                       EMERGENCY
 
         

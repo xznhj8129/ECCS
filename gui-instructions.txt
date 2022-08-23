@@ -12,14 +12,14 @@ The gui.py uses easygui to create a simpler method of use for non-technical user
         Doing both and having multiple copies of codebooks would create the danger that the codes are not securely cleared from 
         all of them immediately once used. Multiple parties do not have to use the same method as messages encrypted on a computer 
         can be decrypted by hand, and vice versa, obviously excluding AES messages, but a single party should not mix them.
-    Generated codepads will be in the "codebooks folder" with names such as "2022-05-12_288394_auth.pickle"
+    Generated codepads will be in the "codebooks folder" with names such as "2022-05-12_28834_auth.pickle"
     The filename is obviously the date created, but also the key ID.
 
 2. Select codebooks to use
     Select "Select codebooks"
-    Enter the date and key ID that is in the filename, for example: 2022-05-12_288394_auth.pickle
+    Enter the date and key ID that is in the filename, for example: 2022-05-12_28839_auth.pickle
     Date: 2022-05-12
-    ID: 288394
+    ID: 28839
     ECCS-GUI will now use those codes
 
 3. Menu options
@@ -29,9 +29,9 @@ The gui.py uses easygui to create a simpler method of use for non-technical user
             Pickle keys: .pickle file that will have the key wiped automatically after
         Enter your message
         Will give you a PEM encoded message like following
-        -----BEGIN AES MESSAGE 822308 A1A2B1-----
+        -----BEGIN AES MESSAGE 82208 A1A2B1-----
         PibfJjEUEv9KXPIe77k7jw==
-        -----END AES MESSAGE 822308 A1A2B1-----
+        -----END AES MESSAGE 82208 A1A2B1-----
         The header contains the Key ID, the 2 key codes and the IV code, so you know that to decrypt you need the A1 and A2 key halves and B1 as IV from codebook 822308 
         You must not change the message header
     
@@ -49,8 +49,8 @@ The gui.py uses easygui to create a simpler method of use for non-technical user
     One Time Pad Encrypt
         This requires pickle files
         Will encrypt a simple text message (few special characters allowed, see CT46-2.png)
-        The resulting message will look like: 8223080000156741233206175865947
-        822308: the codebook ID
+        The resulting message will look like: 822080000156741233206175865947
+        82208: the codebook ID
         00001: the pad ID
         56741: the first 5 digits of the pad (not used for encryption, only validation)
         233206175865947: the actual encrypted message
@@ -61,8 +61,35 @@ The gui.py uses easygui to create a simpler method of use for non-technical user
         See above, simply enter the encrypted message and the system will automatically decrypt it and wipe the used pad
 
     Authentify
-        Enter a verification code (example: A01) and you will get the corresponding authentification code (example: M39D), or vice-versa
+        Enter a verification code (example: A01) and you will get the corresponding authentification code (example: M39KD), or vice-versa
         The system will automatically wipe the used code
+
+    RSA-AES Encrypt
+        WIP
+
+    RSA-AES Decrypt
+        WIP
+
+    RSA-AES File Encrypt
+        WIP
+
+    RSA-AES File Decrypt
+        WIP
+
+    Generate RSA Key
+        WIP
+        
+    File XOR-OTP Encrypt
+    
+    File XOR-OTP Decrypt
+    
+    Generate XOR-OTP Key file
+
+    Steghide Embed File
+        WIP
+
+    Steghide Extract File
+        WIP
 
     Select codebooks: see above
 

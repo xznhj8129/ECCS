@@ -1,19 +1,42 @@
 ENCRYPTED COVERT COMMUNICATION SYSTEM
 
 INTRODUCTION
-    ECCS is a simple python-based encryption/decryption system made to easily be able to send short symmetric-key encrypted
-    messages over whatever method is necessary. The system is made to be able to be used both manually using printed 
-    documents (except the AES crypter which requires some form of computer) as well as electronically.
+    ECCS is a simple python-based encryption/decryption system made to easily be able to send short 
+    symmetric-key encrypted messages over whatever method is necessary. The system is made to be able 
+    to be used both manually using printed documents (except the AES and RSA methods which requires 
+    some form of computer) as well as electronically. It is intended as a complete and secure SHTF 
+    communication system.
 
-    ALWAYS use an airgapped, secure and encrypted computer to generate, store and interact with code books and keys.
+UTILITIES
+    - Codebook generation scripts for txt, pdf and pickle formats
+    - AES message cryptography
+    - AES file cryptography
+    - One Time Pad cryptography
+    - Brevity codes for OTP
+    - Authentification method
+    - RSA key generation
+    - RSA-AES message cryptography
+    - RSA-AES file cryptography
+    - XOR One time pad file cryptography
+    - Steghide interface
 
-    NOTE: You should pick ONE method of using this system:
+WARNING
+    ALWAYS use an airgapped, secure and encrypted computer to generate, store and interact with code 
+    books and keys.
 
-    A. Pen and Paper, using printed PDF or TXT format sheets that you physically cut out codes from once they are used.
+    NOTE: You should pick ONE method of using this system per operator:
 
-    B. Airgapped computer using the ECCS GUI and Pickle files.
-    Doing both and having multiple copies of codebooks would create the danger that the codes are not securely cleared from 
-    all of them immediately once used. Multiple parties do not have to use the same method as messages encrypted on a computer 
-    can be decrypted by hand, and vice versa, obviously excluding AES messages, but a single party should not mix them.
+    A. Pen and Paper, using printed PDF or TXT format sheets that you physically cut out and destroy 
+    codes from once they are used.
 
+    B. Airgapped and disk-encrypted computer using the ECCS utilities and Pickle files.
 
+    Doing both and having multiple copies of codebooks would create the danger that the codes are not 
+    securely cleared from all of them immediately once used. Multiple parties do not have to use the 
+    same method as messages encrypted on a computer can be decrypted by hand, and vice versa, obviously 
+    excluding AES and RSA messages, but a single party should not mix them.
+
+CHANGELOG:
+    1.0: python 2.7
+    1.1: EasyGUI frontend
+    1.2: RSA-AES encryption and steghide interface
