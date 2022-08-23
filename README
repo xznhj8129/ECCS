@@ -1,29 +1,40 @@
 ENCRYPTED COVERT COMMUNICATION SYSTEM
 
 INTRODUCTION
-    ECCS is a simple python-based encryption/decryption system made to easily be able to send short 
-    symmetric-key encrypted messages over whatever method is necessary. The system is made to be able 
-    to be used both manually using printed documents (except some methods such as RSA, AES, XOR which 
-    require some form of computer) as well as electronically. It is intended as a complete and secure 
-    SHTF communication system. Basically your one-stop solution for spy messages for non-technically
-    oriented/linux+privacy non-expert users.
+    ECCS is a fun and simple python-based encryption/decryption system made to easily be able to send short 
+    encrypted messages and files over whatever method is necessary, wether it is paper, internet messaging, 
+    email, radio, etc. The system is made to be able to be used both manually using printed documents 
+    (except some methods such as RSA, AES, XOR which obviously require some form of computer) as well 
+    as electronically. It is intended as a complete and secure SHTF communication system. Basically 
+    your one-stop solution for spy messages for non-technically oriented/linux+privacy non-expert users.
 
 UTILITIES
     - Codebook generation scripts for txt, pdf and pickle formats
+        Generate pickle files for automatic key management and also print cool PDF codebooks!
     - AES message cryptography
+        Typical simple AES cryptography using codebooks
     - AES file cryptography
+        Typical simple AES file cryptography using codebooks
     - One Time Pad cryptography
+        Cross-platform (paper and PC) One time pad implementation!
     - Brevity codes for OTP
+        Shorten OTP messages
     - Authentification method
+        For simple verification
     - RSA key generation
+        Simple pycryptodome RSA-PKCS key generation
     - RSA-AES message cryptography
+        Use pycryptodome RSA-PKCS cryptography with AES to securely send verified messages
     - RSA-AES file cryptography
+        Same as above but with files
     - XOR One time pad file cryptography
+        Use OTP principle with binary data blocks to encrypt files with unbreakable encryption!
     - Steghide interface
+        Steghide interface for non-technical users to be able to use steganography
 
 WARNING
-    ALWAYS use an airgapped, secure and encrypted computer to generate, store and interact with code 
-    books and keys.
+    ALWAYS use an airgapped, secure, hidden and encrypted computer to generate, store and interact with 
+    codebooks and keys.
 
     NOTE: You should pick ONE method of using this system per operator:
 
