@@ -21,7 +21,8 @@
     the propper documents. You just cross-reference the letters and numbers to the propper grid code. You can include 
     an authentification in a message by putting in, for example, "C04=RGU4", and the recipient can verify and see you 
     are who you say you are. You can also issue a challenge and demand verification, asking "Authenticate H19" and 
-    expecting "DJ9W". Using the authentification table in your messages is an extra layer of security.
+    expecting "DJ9W". Using the authentification table in your messages is an extra layer of security. Obliterate codes
+    once they are used to prevent re-use by an adversary.
 
 
 4. AES CRYPTER
@@ -61,32 +62,28 @@
             Example: 
             B20: 7e3119074bc945d5080e339308f34cf9
 
-        3. Construct message header:
-            Pad ID: 940276
-            Keys: A6 and B13
-            IV: B20
-            940276-A6B13-B20-
-
         4. Encrypt message with aescrypt.py
 
-            ./aescrypt.py -e --key1 9bba6c2d46e354e1f3f3238542795266 --key2 c424d45b1a68685353499e45a2ebec72 --iv 7e3119074bc945d5080e339308f34cf9 "test message" --b64
-            out: a72ef25dc9af3ddcf3d75cac71e7777f
+            ./aescrypt.py -e --key1 9bba6c2d46e354e1f3f3238542795266 --key2 c424d45b1a68685353499e45a2ebec72 --iv 7e3119074bc945d5080e339308f34cf9 --pem "test message"
 
             Alternatively, use the pickle file mode
-            ./aescrypt.py -e --key1 A6 --key2 B13 --iv B20 --keyfile aespad.pickle "test message" --b64
+            ./aescrypt.py -e --key1 A6 --key2 B13 --iv B20 --pem --keyfile 2022_06_20_85916_aespad.pickle "test message" 
 
-        5. Complete message by adding [message] to header
-            Example: 940276-A6B13-B20-a72ef25dc9af3ddcf3d75cac71e7777f
+        5. Copy message output
+            -----BEGIN AES MESSAGE 85916 A6B13B20-----
+            dvyPvT+SNttNWX7ZudwMSxNa+Al8oEeru1LxA10o9qo=
+            -----END AES MESSAGE 85916 A6B13B20-----
 
         6. Send message
 
     DECRYPTION
 
         7. Receive message and find keys on Code Pad
-            Example: 940276-A6B13-B20-a72ef25dc9af3ddcf3d75cac71e7777f
-            First key half: A6: 9bba6c2d46e354e1f3f3238542795266
-            Second key half: B13: c424d45b1a68685353499e45a2ebec72
-            IV: B20: 7e3119074bc945d5080e339308f34cf9
+            Example: 
+                -----BEGIN AES MESSAGE 85916 A6B13B20-----
+                dvyPvT+SNttNWX7ZudwMSxNa+Al8oEeru1LxA10o9qo=
+                -----END AES MESSAGE 85916 A6B13B20-----
+            The system will automatically know to use sections A6, B13 and B20 from the codebook 85916
 
             Redact Keys and IV from code pad to prevent re-use
             
@@ -245,4 +242,6 @@
     CODE 0012  _  7  _  CODE 0027  _  i t  s  _  a n _  CODE 0911
          UNIT                COME HOME                       EMERGENCY
 
-        
+8. RSA-AES CRYPTER
+    
+    WIP

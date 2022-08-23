@@ -3,9 +3,10 @@ ENCRYPTED COVERT COMMUNICATION SYSTEM
 INTRODUCTION
     ECCS is a simple python-based encryption/decryption system made to easily be able to send short 
     symmetric-key encrypted messages over whatever method is necessary. The system is made to be able 
-    to be used both manually using printed documents (except the AES and RSA methods which requires 
-    some form of computer) as well as electronically. It is intended as a complete and secure SHTF 
-    communication system.
+    to be used both manually using printed documents (except some methods such as RSA, AES, XOR which 
+    require some form of computer) as well as electronically. It is intended as a complete and secure 
+    SHTF communication system. Basically your one-stop solution for spy messages for non-technically
+    oriented/linux+privacy non-expert users.
 
 UTILITIES
     - Codebook generation scripts for txt, pdf and pickle formats

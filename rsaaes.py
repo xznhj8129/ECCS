@@ -101,10 +101,10 @@ def AESencrypt(data, key, iv, binary=False):
     if binary:
         bytedata = data
     else:
-        bytedata = bytes(data,'utf-8')
+        bytedata = bytes(data.decode(),'utf-8')
         
     padded = pad(bytedata,16)
-    encrypted = cipher.encrypt(padded) #fuckup on files
+    encrypted = cipher.encrypt(padded)
     del cipher
     return encrypted
 
@@ -121,7 +121,7 @@ def AESdecrypt(data, key, iv, binary=False):
         return str(decrypted,'utf-8')
 
 
-def rsaaes_encrypt(my_key, destination_key, message, isfile):
+def rsaaes_encrypt(my_key, destination_key, message, isfile=False):
     aeskey = Random.new().read(32)
     iv = Random.new().read(AES.block_size)
     hash = SHA512.new()

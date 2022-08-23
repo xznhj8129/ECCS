@@ -452,7 +452,6 @@ while 1:
                 args_message = easygui.textbox(msg="Enter the message below",text='',title=titlebar)
                 if not args_message: 
                     continue
-
                 if args_e:
                     enc = rsaaes_encrypt(MyKey, HisKey, args_message).decode()
                     easygui.textbox(msg="Encrypted message",title=titlebar,text=str(enc))
