@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import os
 import math
 import easygui
 import datetime
@@ -30,7 +31,7 @@ class gen_args():
 v = str( 1.2 )
 titlebar = 'ECCS GUI'+v
 
-args_keeppad = True # change to False for production
+args_keeppad = os.path.isfile('testmode')
 
 try:
     with open('.usecodes','r') as file:
