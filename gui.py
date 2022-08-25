@@ -5,10 +5,8 @@ import datetime
 import subprocess
 import traceback
 import traceback
-from aescrypt import *
 from gencodes import *
-from authentify import *
-from rsaaes import *
+from cryptomodule import *
 from otp import *
 
 class gen_args():
@@ -17,7 +15,7 @@ class gen_args():
         if self.codes:
             self.formats = easygui.multchoicebox(msg='Select formats to generate',title='Select', choices=['All','PDF','pickle','txt'])
         if self.codes and self.formats:
-            self.all = 'All' in self.codes
+            self.all = 'All' in self.codes and 'All' in self.formats
             self.allcodes = 'All' in self.codes
             self.allformats = 'All' in self.formats
             self.brevity = 'Brevity' in self.codes
@@ -121,7 +119,6 @@ while 1:
                 codebook_brevity = None
 
         elif ch in ["AES Encrypt","AES Decrypt","AES File Encrypt","AES File Decrypt"]:
-            
             args_e = ch in ["AES Encrypt","AES File Encrypt"]
             args_d = ch in ["AES Decrypt","AES File Decrypt"]
             args_key1 = None
@@ -187,7 +184,7 @@ while 1:
                     filename = args_file
                     with open(filename,'rb') as file:
                         filecontent = file.read()
-                    encfile = AESencrypt(filecontent, binkey, biniv)
+                    encfile = AESencrypt(filecontent, binkey, biniv, True)
                     encfile = binascii.b2a_hex(encfile)
                     with open(filename+'.enc','wb') as file:
                         file.write(encfile)
@@ -220,7 +217,7 @@ while 1:
                 elif args_d:
                     #print(str([args_message]))
                     a = PEM.decode(args_message)[0]
-                    message = str(AESdecrypt(a, binkey, biniv,False),'utf-8')
+                    message = AESdecrypt(a, binkey, biniv,False)
                     easygui.textbox(msg="Decrypted message below. Use Control+C to copy.",title=titlebar,text=message)
                     
             if args_keyfile and not args_keeppad:
@@ -241,7 +238,6 @@ while 1:
                 with open(args_keyfile, 'wb') as f:
                     pickle.dump(codebook, f, pickle.HIGHEST_PROTOCOL)
                         
-                
         elif ch in ["One Time Pad Encrypt","One Time Pad Decrypt"]:
             try:
                 args_e = ch == "One Time Pad Encrypt"
@@ -472,18 +468,22 @@ while 1:
                             'shred -zv -n 1 *_aespad.*',
                             'shred -zv -n 1 *_auth.*',
                             'shred -zv -n 1 *_brevitycodes.*',
+                            'shred -zv -n 1 *.asc',
                             'shred -zv -n 1 */*_otp.*',
                             'shred -zv -n 1 */*_aespad.*',
                             'shred -zv -n 1 */*_auth.*',
                             'shred -zv -n 1 */*_brevitycodes.*',
+                            'shred -zv -n 1 */*.asc',
                             'rm *_otp.*',
                             'rm *_aespad.*',
                             'rm *_auth.*',
                             'rm *_brevitycodes.*',
+                            'rm *.asc',
                             'rm */*_otp.*',
                             'rm */*_aespad.*',
                             'rm */*_auth.*',
-                            'rm */*_brevitycodes.*']
+                            'rm */*_brevitycodes.*'
+                            'rm */*.asc',]
                 for cmde in commands:
                     execproc = subprocess.Popen(cmde, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
                     cmdoutput = execproc.stdout.read() + execproc.stderr.read()

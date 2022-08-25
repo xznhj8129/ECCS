@@ -1,71 +1,57 @@
 #!/usr/bin/python3
 
 import math
-from Crypto.Random import random
 import Crypto.Random as Random
 import binascii
 import os
 import sys
 import argparse
+import pickle
 
-if __name__ == '__main__':
+class XORcrypter():
     
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-e', help='Encrypt',action='store_true')
-    parser.add_argument('-d', help='Decrypt',action='store_true')
-    parser.add_argument('-o', help="Output file",nargs="?")
-    parser.add_argument('--keyfile', help='Random data key file to use',nargs="?")
-    parser.add_argument('--file', help="File to XOR",nargs="?")
-    parser.add_argument('--genrandom',help="Generate Random Data file, number of blocks of 10kb",required=False)
-    parser.add_argument('--keepblocks',help="Keep decryption blocks (UNSAFE)",required=False,action='store_true')
-    args = parser.parse_args()
+    def __init__(self):
+        self.kb = 10
     
-    if args.genrandom:
-        if not args.keyfile:
-            print('Error: please specify a keyblock filename')
-            exit(1)
-        kb = 10
-        n_blocks = int(args.genrandom)
-        f = b''
-        print('Generating {} blocks of {} kilobytes of random data'.format(n_blocks,kb))
+    def genkeyfile(self, size, filename):
+        
+        n_blocks = int(size)
+        blocks = []
 
         for i in range(n_blocks):
-            bits = int(kb)*1000
-            rand = binascii.b2a_hex(Random.new().read(bits))
-            if i == n_blocks-1:
-                f+=rand
-            else:
-                f += rand + b'\n'
-                        
-        with open(args.keyfile, "wb") as file:
-            file.write(f)
-        print('Done')
+            bits = int(self.kb)*1000
+            rand = Random.new().read(bits)
+            blocks.append(rand)
 
-    else:
-        if not (args.e ^ args.d):
-            print('Error: unknown action')
-            exit(1)
-            
-        filename = args.file
-        encrypt = args.e == True
-        deleteblocks = args.keepblocks
+        with open(filename+'.pickle', 'wb') as f:
+            pickle.dump(blocks, f, pickle.HIGHEST_PROTOCOL)
 
-        kb = (10 *1000)
 
-        randfile = bytearray(open(args.keyfile, 'rb').read())
-        keyblocks = randfile.split(b'\n')
+    def xorfile(self, mode, keyfile, filename, keepblocks, verbose=False):
+
+        encrypt = mode == 'e'
+        deleteblocks = keepblocks
+
+        bits = self.kb * 1000
+        nullblock = b''
+        for i in range(bits):
+            nullblock += b'\0'
+
+        with open(keyfile, 'rb') as f:
+            keyblocks = pickle.load(f)
+
         n_blocks = len(keyblocks)
         
-        print('Blocks:', n_blocks)
+        if verbose: print('Blocks:', n_blocks)
         for i in range(len(keyblocks)):
-            if not keyblocks[i].startswith(b'X'):
+            if keyblocks[i]!=nullblock:
                 startblock = i
                 break
         
-        print('Start block:',startblock)
-        randsizeavail = kb * n_blocks - startblock
+        if verbose: print('Start block:',startblock)
+        randsizeavail = bits * n_blocks - startblock
         blocksavail = n_blocks - startblock
-        print('Blocks available:',n_blocks - startblock)
+        if verbose: print('Blocks available:',n_blocks - startblock)
 
         inputfile = bytearray(open(filename, 'rb').read())
         if encrypt:
@@ -74,32 +60,31 @@ if __name__ == '__main__':
             inputfile = inputfile[inputfile.find(b'\n')+1:]
             size = len(inputfile)
 
-
-        blocksneeded = math.ceil(size / kb)
-        print('Blocks needed:',blocksneeded)
+        blocksneeded = math.ceil(size / bits)
+        if verbose: print('Blocks needed:',blocksneeded)
         if blocksneeded > blocksavail: 
             print('Error: not enough blocks')
             exit(1)
 
         key = b''
         n = 0
-        for i in keyblocks:
-            if not i.startswith(b'X'):
-                key += binascii.a2b_hex(i)
-                if not args.keepblocks: 
-                    keyblocks[startblock+n] = b'X' + binascii.b2a_hex(Random.new().read(kb))[1:]
-                n+=1
-                if n==blocksneeded: break
-                
+        
+        for i in range(blocksneeded):
+            j = i+startblock
+            if keyblocks[j] != nullblock:
+                key += keyblocks[j]
+                if not args.keepblocks:
+                    keyblocks[j] = nullblock
+
         xord_byte_array = bytearray(size)
 
         if encrypt:
             inputfile = bytes(filename,'utf-8')+b'\n' + inputfile
-
+        
         # XOR between the files
         for i in range(size):
             xord_byte_array[i] = inputfile[i] ^ key[i]
-
+        
         if encrypt:
             xord_byte_array.insert(0,ord('\n'))
             sb = str(startblock)
@@ -119,16 +104,47 @@ if __name__ == '__main__':
             filename = ''.join(random.choice('ABCDEF1234567890') for _ in range(8))+'.enc'
  
         if not args.keepblocks:
-            f = b''
-            nn = 0
-            for i in keyblocks:
-                if nn == len(keyblocks)-1:
-                    f += i
-                else:
-                    f += i + b'\n'
-                nn+=1
-            with open(args.keyfile, "wb") as file:
-                file.write(f)
+            with open(keyfile, 'wb') as f:
+                pickle.dump(keyblocks, f, pickle.HIGHEST_PROTOCOL)
  
         open(filename, 'wb').write(xord_byte_array)
-        print('Done, output:',filename)
+        return filename
+        
+
+if __name__ == '__main__':
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-e', help='Encrypt',action='store_true')
+    parser.add_argument('-d', help='Decrypt',action='store_true')
+    parser.add_argument('-o', help="Output file",nargs="?")
+    parser.add_argument('--keyfile', help='Random data key file to use',nargs="?")
+    parser.add_argument('--file', help="File to XOR",nargs="?")
+    parser.add_argument('--genrandom',help="Generate Random Data file, number of blocks of 10kb",required=False)
+    parser.add_argument('--keepblocks',help="Keep decryption blocks (UNSAFE)",required=False,action='store_true')
+    parser.add_argument('-v',help="Verbose",required=False,action='store_true')
+    args = parser.parse_args()
+    
+    xor = XORcrypter()
+    
+    if args.genrandom:
+        if not args.keyfile:
+            print('Error: please specify a keyblock filename')
+            exit(1)
+        print('Generating {} blocks of {} kilobytes of random data'.format(args.genrandom, xor.kb))
+        xor.genkeyfile(args.genrandom, args.keyfile)
+        print('Done')
+
+    else:
+        
+        if not (args.e ^ args.d):
+            print('Error: unknown action')
+            exit(1)
+        
+        if args.e:
+            mode = 'e'
+        elif args.d:
+            mode = 'd'
+            
+        filename = xor.xorfile(mode, args.keyfile, args.file, args.keepblocks, verbose=args.v)
+        print(filename)
+        

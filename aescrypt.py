@@ -4,29 +4,7 @@ import os
 import sys
 import argparse
 import pickle
-from Crypto.Random import random
-from Crypto.Cipher import AES
-from Crypto.IO import PEM
-from Crypto.Util.Padding import pad, unpad
-
-def AESencrypt(data, key, iv):
-    cipher = AES.new(key, AES.MODE_CBC, iv)
-    if type(data) is str:
-        bytedata = bytes(data,'utf-8')
-    else:
-        bytedata = data
-    padded = pad(bytedata,16)
-    encrypted = cipher.encrypt(padded) #fuckup on files
-    del cipher
-    return encrypted
-
-def AESdecrypt(data, key, iv, binary):
-    cipher = AES.new(key, AES.MODE_CBC, iv)
-    dec = cipher.decrypt(data)
-    unpadded = unpad(dec,16)
-    decrypted = unpadded
-    del cipher
-    return decrypted
+from cryptomodule import *
 
 if __name__ == '__main__':
     
@@ -36,7 +14,7 @@ if __name__ == '__main__':
     parser.add_argument('-d', help='Decrypt',action='store_true')
     parser.add_argument('--key1', help='Encryption key 1/2 (32 characters)')
     parser.add_argument('--key2', help='Encryption key 2/2 (32 characters)')
-    parser.add_argument('--iv', help='Initiation vector (16 characters)')
+    parser.add_argument('--iv', help='Initiation vector (32 characters)')
     parser.add_argument('--pem', help='PEM encoding of input/output',action="store_true")
     parser.add_argument('--rawkey',help='No base64 for keys and IV',action="store_true")
     parser.add_argument('--file', help='Encrypt/decrypt file, .enc extension',action="store_true")
@@ -64,6 +42,7 @@ if __name__ == '__main__':
     if not args.rawkey and not args.keyfile:
         binkey = binascii.a2b_hex(args.key1+args.key2)
         biniv = binascii.a2b_hex(args.iv)
+        
     elif args.keyfile:
         with open(args.keyfile, 'rb') as f:
             codebook = pickle.load(f)
@@ -103,7 +82,7 @@ if __name__ == '__main__':
         
     else:
         if args.e:
-            a = AESencrypt(args.message, binkey, biniv)
+            a = AESencrypt(args.message, binkey, biniv, binary=False)
             if args.pem:
                 if args.keyfile:
                     print(PEM.encode(a,'AES MESSAGE {} {}'.format(keyfileid,args.key1.upper()+args.key2.upper()+args.iv.upper())))
@@ -115,10 +94,12 @@ if __name__ == '__main__':
         elif args.d:
             if args.pem:
                 a = PEM.decode(args.message)[0]
-                #a = binascii.a2b_hex(args.message)
             else:
                 a = args.message
-            print(str(AESdecrypt(a, binkey, biniv,False),'utf-8'))
+                
+            print(AESdecrypt(a, binkey, biniv, False))
+            #print(str(AESdecrypt(a, binkey, biniv, False),'utf-8'))
+    
             
     if args.keyfile and not args.keeppad:
         overwrite = '00000000000000000000000000000000'
