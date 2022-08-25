@@ -6,6 +6,7 @@ import binascii
 import os
 import sys
 import argparse
+import random
 import pickle
 
 class XORcrypter():
@@ -23,7 +24,7 @@ class XORcrypter():
             rand = Random.new().read(bits)
             blocks.append(rand)
 
-        with open(filename+'.pickle', 'wb') as f:
+        with open(filename+'_xorotp.pickle', 'wb') as f:
             pickle.dump(blocks, f, pickle.HIGHEST_PROTOCOL)
 
 
@@ -73,7 +74,7 @@ class XORcrypter():
             j = i+startblock
             if keyblocks[j] != nullblock:
                 key += keyblocks[j]
-                if not args.keepblocks:
+                if not keepblocks:
                     keyblocks[j] = nullblock
 
         xord_byte_array = bytearray(size)
@@ -103,7 +104,7 @@ class XORcrypter():
         else:
             filename = ''.join(random.choice('ABCDEF1234567890') for _ in range(8))+'.enc'
  
-        if not args.keepblocks:
+        if not keepblocks:
             with open(keyfile, 'wb') as f:
                 pickle.dump(keyblocks, f, pickle.HIGHEST_PROTOCOL)
  

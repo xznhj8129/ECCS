@@ -7,6 +7,7 @@ import traceback
 import traceback
 from gencodes import *
 from cryptomodule import *
+from xorotp import *
 from otp import *
 
 class gen_args():
@@ -78,9 +79,9 @@ while 1:
                                         "Generate RSA Key",
                                         #"Steghide Embed File",
                                         #"Steghide Extract File",
-                                        #"File XOR-OTP Encrypt"
-                                        #"File XOR-OTP Decrypt"
-                                        #"Generate XOR-OTP Key file"
+                                        "File XOR-OTP Encrypt",
+                                        "File XOR-OTP Decrypt",
+                                        "Generate XOR-OTP Key file",
                                         "Select codebooks",
                                         "Generate codebooks",
                                         "Securely wipe file",
@@ -459,6 +460,27 @@ while 1:
                     else:
                         verify = 'FAILED VERIFICATION'
                     easygui.textbox(msg="Decrypted message\nMessage signature: "+verify,title=titlebar,text=dec['msg'])
+            
+        elif ch == "Generate XOR-OTP Key file":
+            xor = XORcrypter()
+            params = easygui.multenterbox(msg='Enter file name and number of 10kb blocks', title=titlebar, fields=['Filename','Blocks'], values=[])
+            if not params:
+                continue
+            filename, size = params
+            xor.genkeyfile(size, filename)
+            easygui.msgbox('Generated {} blocks of {} kilobytes of random data in {}_xorotp.pickle'.format(size, xor.kb, filename),titlebar)
+                    
+        elif ch in ["File XOR-OTP Encrypt","File XOR-OTP Decrypt"]:
+            xor = XORcrypter()
+            if ch == "File XOR-OTP Encrypt":
+                mode = 'e'
+            else:
+                mode = 'd'
+            file2xor = easygui.fileopenbox(msg="Select file to XOR", title=titlebar, default='*', multiple=False)
+            keyfile = easygui.fileopenbox(msg="Select XOR keyfile", title=titlebar, default='*', multiple=False)
+            if not file2xor or not keyfile: continue
+            filename = xor.xorfile(mode, keyfile, file2xor, args_keeppad)
+            easygui.msgbox("File {} XOR'ed to {}".format(file2xor, filename),titlebar)
 
         elif ch == 'DESTROY CODEBOOKS':
             
