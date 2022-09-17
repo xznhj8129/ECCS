@@ -50,5 +50,5 @@ WARNING
 
 CHANGELOG:
     1.0: python 2.7
-    1.1: EasyGUI frontend
+    1.1: Python 3, EasyGUI frontend
     1.2: RSA-AES encryption and steghide interface
